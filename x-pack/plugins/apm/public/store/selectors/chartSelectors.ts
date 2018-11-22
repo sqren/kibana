@@ -5,10 +5,8 @@
  */
 
 import d3 from 'd3';
-import { difference, last, memoize, zipObject } from 'lodash';
-import { rgba } from 'polished';
-import { AvgAnomalyBucket } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_avg_response_time_anomalies/get_anomaly_aggs/transform';
-import { TimeSeriesAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_timeseries_data/transform';
+import { difference, memoize, zipObject } from 'lodash';
+import { TimeSeriesAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_timeseries_data';
 import { StringMap } from 'x-pack/plugins/apm/typings/common';
 import { colors } from '../../style/variables';
 import { asDecimal, asMillis, tpmUnit } from '../../utils/formatters';
@@ -17,10 +15,6 @@ import { IUrlParams } from '../urlParams';
 interface Coordinate {
   x: number;
   y?: number | null;
-}
-
-interface BoundaryCoordinate extends Coordinate {
-  y0: number | null;
 }
 
 export const getEmptySerie = memoize(
@@ -76,8 +70,8 @@ interface TimeSerie {
 }
 
 export function getResponseTimeSeries(chartsData: TimeSeriesAPIResponse) {
-  const { dates, overallAvgDuration } = chartsData;
-  const { avg, p95, p99, avgAnomalies } = chartsData.responseTimes;
+  const { dates, overallAvgDuration, anomalyTimeSeries } = chartsData;
+  const { avg, p95, p99 } = chartsData.responseTimes;
 
   const series: TimeSerie[] = [
     {
@@ -103,35 +97,10 @@ export function getResponseTimeSeries(chartsData: TimeSeriesAPIResponse) {
     }
   ];
 
-  if (avgAnomalies) {
-    // insert after Avg. serie
-    series.splice(1, 0, {
-      title: 'Anomaly Boundaries',
-      hideLegend: true,
-      hideTooltipValue: true,
-      data: getAnomalyBoundaryValues(
-        dates,
-        avgAnomalies.buckets,
-        avgAnomalies.bucketSizeAsMillis
-      ),
-      type: 'area',
-      color: 'none',
-      areaColor: rgba(colors.apmBlue, 0.1)
-    });
-
-    series.splice(1, 0, {
-      title: 'Anomaly score',
-      hideLegend: true,
-      hideTooltipValue: true,
-      data: getAnomalyScoreValues(
-        dates,
-        avgAnomalies.buckets,
-        avgAnomalies.bucketSizeAsMillis
-      ),
-      type: 'areaMaxHeight',
-      color: 'none',
-      areaColor: rgba(colors.apmRed, 0.1)
-    });
+  if (anomalyTimeSeries) {
+    // insert after Avg. series
+    series.splice(1, 0, anomalyTimeSeries.anomalyBoundariesSeries);
+    series.splice(1, 0, anomalyTimeSeries.anomalyScoreSeries);
   }
 
   return series;
@@ -193,76 +162,4 @@ function getChartValues(
     x,
     y: buckets[i]
   }));
-}
-
-export function getAnomalyScoreValues(
-  dates: number[] = [],
-  buckets: AvgAnomalyBucket[] = [],
-  bucketSizeAsMillis: number
-) {
-  const ANOMALY_THRESHOLD = 75;
-  const getX = (currentX: number, i: number) =>
-    currentX + bucketSizeAsMillis * i;
-
-  return dates
-    .map((date, i) => {
-      const { anomalyScore } = buckets[i];
-      return {
-        x: date,
-        anomalyScore
-      };
-    })
-    .filter(p => {
-      const res =
-        p && p.anomalyScore != null && p.anomalyScore > ANOMALY_THRESHOLD;
-      return res;
-    })
-    .reduce<Coordinate[]>((acc, p, i, points) => {
-      const nextPoint = points[i + 1] || {};
-      const endX = getX(p.x, 1);
-      acc.push({ x: p.x, y: 1 });
-      if (nextPoint.x == null || nextPoint.x > endX) {
-        acc.push(
-          {
-            x: endX,
-            y: 1
-          },
-          {
-            x: getX(p.x, 2)
-          }
-        );
-      }
-
-      return acc;
-    }, []);
-}
-
-export function getAnomalyBoundaryValues(
-  dates: number[] = [],
-  buckets: AvgAnomalyBucket[] = [],
-  bucketSizeAsMillis: number
-) {
-  const lastX = last(dates);
-  return dates
-    .map((date, i) => {
-      const bucket = buckets[i];
-      return {
-        x: date,
-        y0: bucket.lower,
-        y: bucket.upper
-      };
-    })
-    .filter(p => p.y != null)
-    .reduce<BoundaryCoordinate[]>((acc, p, i, points) => {
-      const isLast = last(points) === p;
-      acc.push(p);
-
-      if (isLast) {
-        acc.push({
-          ...p,
-          x: Math.min(p.x + bucketSizeAsMillis, lastX) // avoid going beyond the last date
-        });
-      }
-      return acc;
-    }, []);
 }

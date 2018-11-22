@@ -6,26 +6,37 @@
 
 import { getBucketSize } from '../../../helpers/get_bucket_size';
 import { Setup } from '../../../helpers/setup_request';
-import { getAvgResponseTimeAnomalies } from '../get_avg_response_time_anomalies';
+import { getAnomalySeries } from '../get_anomaly_series';
+import { AnomalyTimeSeriesResponse } from '../get_anomaly_series/transform';
 import { timeseriesFetcher } from './fetcher';
-import { timeseriesTransformer } from './transform';
+import { ApmTimeSeriesResponse, timeseriesTransformer } from './transform';
 
-export interface IOptions {
+export interface TimeSeriesAPIResponse extends ApmTimeSeriesResponse {
+  anomalyTimeSeries?: AnomalyTimeSeriesResponse;
+}
+
+export async function getTimeseriesData(options: {
   serviceName: string;
   transactionType: string;
   transactionName?: string;
   setup: Setup;
-}
-
-export async function getTimeseriesData(options: IOptions) {
+}): Promise<TimeSeriesAPIResponse> {
   const { start, end } = options.setup;
   const { bucketSize } = getBucketSize(start, end, 'auto');
 
-  const avgAnomaliesResponse = await getAvgResponseTimeAnomalies(options);
   const timeseriesResponse = await timeseriesFetcher(options);
-  return timeseriesTransformer({
+  const transformedTimeSeries = timeseriesTransformer({
     timeseriesResponse,
-    avgAnomaliesResponse,
     bucketSize
   });
+
+  const anomalyTimeSeries = await getAnomalySeries({
+    ...options,
+    timeSeriesDates: transformedTimeSeries.dates
+  });
+
+  return {
+    ...transformedTimeSeries,
+    anomalyTimeSeries
+  };
 }

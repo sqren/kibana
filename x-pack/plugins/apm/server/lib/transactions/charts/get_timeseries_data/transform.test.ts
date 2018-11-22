@@ -5,19 +5,15 @@
  */
 
 import { first, last } from 'lodash';
+import { TimeSeriesAPIResponse } from '.';
 import { timeseriesResponse } from './mock-responses/timeseries_response';
-import {
-  getTpmBuckets,
-  TimeSeriesAPIResponse,
-  timeseriesTransformer
-} from './transform';
+import { getTpmBuckets, timeseriesTransformer } from './transform';
 
 describe('timeseriesTransformer', () => {
   let res: TimeSeriesAPIResponse;
   beforeEach(async () => {
     res = await timeseriesTransformer({
       timeseriesResponse,
-      avgAnomaliesResponse: undefined,
       bucketSize: 12
     });
   });

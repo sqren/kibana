@@ -7,19 +7,17 @@
 import { isNumber, round, sortBy } from 'lodash';
 import mean from 'lodash.mean';
 import { oc } from 'ts-optchain';
-import { IAvgAnomaliesResponse } from '../get_avg_response_time_anomalies';
 import { ESResponse } from './fetcher';
 
 type MaybeNumber = number | null;
 
-export interface TimeSeriesAPIResponse {
+export interface ApmTimeSeriesResponse {
   totalHits: number;
   dates: number[];
   responseTimes: {
     avg: MaybeNumber[];
     p95: MaybeNumber[];
     p99: MaybeNumber[];
-    avgAnomalies?: IAvgAnomaliesResponse;
   };
   tpmBuckets: Array<{
     key: string;
@@ -31,13 +29,11 @@ export interface TimeSeriesAPIResponse {
 
 export function timeseriesTransformer({
   timeseriesResponse,
-  avgAnomaliesResponse,
   bucketSize
 }: {
   timeseriesResponse: ESResponse;
-  avgAnomaliesResponse: IAvgAnomaliesResponse;
   bucketSize: number;
-}): TimeSeriesAPIResponse {
+}): ApmTimeSeriesResponse {
   const aggs = timeseriesResponse.aggregations;
   const overallAvgDuration = oc(aggs).overall_avg_duration.value();
 
@@ -56,8 +52,7 @@ export function timeseriesTransformer({
     responseTimes: {
       avg,
       p95,
-      p99,
-      avgAnomalies: avgAnomaliesResponse
+      p99
     },
     tpmBuckets,
     overallAvgDuration
