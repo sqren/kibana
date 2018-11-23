@@ -31,11 +31,17 @@ interface ResponseTimeBucket {
 }
 
 interface TransactionResultBucket {
+  /**
+   * transaction result eg. 2xx
+   */
   key: string;
   doc_count: number;
   timeseries: {
     buckets: Array<{
       key_as_string: string;
+      /**
+       * timestamp in ms
+       */
       key: number;
       doc_count: number;
     }>;

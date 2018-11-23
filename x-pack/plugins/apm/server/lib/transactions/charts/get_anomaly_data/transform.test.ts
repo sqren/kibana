@@ -54,7 +54,7 @@ describe('anomalySeriesTransform', () => {
         timeSeriesDates
       );
 
-      const buckets = anomalySeries!.anomalyScoreSeries.data;
+      const buckets = anomalySeries!.anomalyScore;
       expect(buckets).toEqual([{ x: 20000, x0: 10000 }]);
     });
   });
@@ -94,7 +94,7 @@ describe('anomalySeriesTransform', () => {
         timeSeriesDates
       );
 
-      const buckets = anomalySeries!.anomalyBoundariesSeries.data;
+      const buckets = anomalySeries!.anomalyBoundaries;
       expect(buckets).toEqual([
         { x: 5000, y: 25, y0: 20 },
         { x: 10000, y: 35, y0: 30 }
@@ -133,7 +133,7 @@ describe('anomalySeriesTransform', () => {
         timeSeriesDates
       );
 
-      const buckets = anomalySeries!.anomalyBoundariesSeries.data;
+      const buckets = anomalySeries!.anomalyBoundaries;
       expect(buckets).toEqual([
         { x: 5000, y: 15, y0: 10 },
         { x: 10000, y: 25, y0: 20 }
@@ -172,7 +172,7 @@ describe('anomalySeriesTransform', () => {
         timeSeriesDates
       );
 
-      const buckets = anomalySeries!.anomalyBoundariesSeries.data;
+      const buckets = anomalySeries!.anomalyBoundaries;
       expect(buckets).toEqual([
         { x: 5000, y: 15, y0: 10 },
         { x: 10000, y: 15, y0: 10 }

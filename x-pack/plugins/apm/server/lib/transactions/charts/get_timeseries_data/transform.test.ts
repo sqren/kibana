@@ -5,12 +5,15 @@
  */
 
 import { first, last } from 'lodash';
-import { TimeSeriesAPIResponse } from '.';
 import { timeseriesResponse } from './mock-responses/timeseries_response';
-import { getTpmBuckets, timeseriesTransformer } from './transform';
+import {
+  ApmTimeSeriesResponse,
+  getTpmBuckets,
+  timeseriesTransformer
+} from './transform';
 
 describe('timeseriesTransformer', () => {
-  let res: TimeSeriesAPIResponse;
+  let res: ApmTimeSeriesResponse;
   beforeEach(async () => {
     res = await timeseriesTransformer({
       timeseriesResponse,
@@ -23,9 +26,11 @@ describe('timeseriesTransformer', () => {
       bucket => bucket.key
     );
 
-    expect(res.dates).not.toContain(first(mockDates));
-    expect(res.dates).not.toContain(last(mockDates));
-    expect(res.tpmBuckets[0].values).toHaveLength(res.dates.length);
+    expect(first(res.responseTimes.avg).x).not.toBe(first(mockDates));
+    expect(last(res.responseTimes.avg).x).not.toBe(last(mockDates));
+
+    expect(first(res.tpmBuckets[0].dataPoints).x).not.toBe(first(mockDates));
+    expect(last(res.tpmBuckets[0].dataPoints).x).not.toBe(last(mockDates));
   });
 
   it('should have correct order', () => {
@@ -105,8 +110,8 @@ describe('getTpmBuckets', () => {
     ];
     const bucketSize = 10;
     expect(getTpmBuckets(buckets, bucketSize)).toEqual([
-      { avg: 1500, key: 'HTTP 4xx', values: [1200, 1800] },
-      { avg: 1800, key: 'HTTP 5xx', values: [3000, 600] }
+      { dataPoints: [{ x: 1, y: 1200 }, { x: 2, y: 1800 }], key: 'HTTP 4xx' },
+      { dataPoints: [{ x: 1, y: 3000 }, { x: 2, y: 600 }], key: 'HTTP 5xx' }
     ]);
   });
 });

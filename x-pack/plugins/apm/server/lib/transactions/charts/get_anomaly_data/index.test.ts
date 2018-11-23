@@ -5,7 +5,6 @@
  */
 
 import { getAnomalySeries } from '.';
-import { bucketTransformer } from '../../distribution/get_buckets/transform';
 import { mlAnomalyResponse } from './mock-responses/mlAnomalyResponse';
 import { mlBucketSpanResponse } from './mock-responses/mlBucketSpanResponse';
 import { AnomalyTimeSeriesResponse } from './transform';
@@ -33,24 +32,24 @@ describe('getAnomalySeries', () => {
     })) as AnomalyTimeSeriesResponse;
   });
 
-  it('should remove buckets lower than threshold and outside date range from anomalyScoreSeries', () => {
-    expect(avgAnomalies.anomalyScoreSeries.data).toEqual([
+  it('should remove buckets lower than threshold and outside date range from anomalyScore', () => {
+    expect(avgAnomalies.anomalyScore).toEqual([
       { x0: 15000, x: 25000 },
       { x0: 25000, x: 35000 }
     ]);
   });
 
-  it('should remove buckets outside date range from anomalyBoundariesSeries', () => {
+  it('should remove buckets outside date range from anomalyBoundaries', () => {
     expect(
-      avgAnomalies.anomalyBoundariesSeries.data.filter(
+      avgAnomalies.anomalyBoundaries.filter(
         bucket => bucket.x < 100 || bucket.x > 100000
       ).length
     ).toBe(0);
   });
 
-  it('should remove buckets with null from anomalyBoundariesSeries', () => {
+  it('should remove buckets with null from anomalyBoundaries', () => {
     expect(
-      avgAnomalies.anomalyBoundariesSeries.data.filter(p => p.y === null).length
+      avgAnomalies.anomalyBoundaries.filter(p => p.y === null).length
     ).toBe(0);
   });
 

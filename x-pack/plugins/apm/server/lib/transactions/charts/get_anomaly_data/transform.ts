@@ -5,9 +5,8 @@
  */
 
 import { first, last } from 'lodash';
-import { rgba } from 'polished';
 import { oc } from 'ts-optchain';
-import { colors } from 'x-pack/plugins/apm/common/variables';
+import { Coordinate } from 'x-pack/plugins/apm/typings/timeseries';
 import { ESResponse } from './fetcher';
 
 interface IBucket {
@@ -17,28 +16,9 @@ interface IBucket {
   upper: number | null;
 }
 
-// TODO: remove duplication between this and chartSelector
-interface Coordinate {
-  x: number;
-  y?: number | null;
-}
-
-// TODO: remove duplication between this and chartSelector
-interface TimeSerie {
-  title: string;
-  titleShort?: string;
-  hideLegend?: boolean;
-  hideTooltipValue?: boolean;
-  data: Coordinate[];
-  legendValue?: string;
-  type: string;
-  color: string;
-  areaColor?: string;
-}
-
 export interface AnomalyTimeSeriesResponse {
-  anomalyScoreSeries: TimeSerie;
-  anomalyBoundariesSeries: TimeSerie;
+  anomalyScore: Coordinate[];
+  anomalyBoundaries: Coordinate[];
 }
 
 export function anomalySeriesTransform(
@@ -65,30 +45,12 @@ export function anomalySeriesTransform(
   const bucketSizeInMillis = Math.max(bucketSize, mlBucketSize) * 1000;
 
   return {
-    anomalyScoreSeries: {
-      title: 'Anomaly score',
-      hideLegend: true,
-      hideTooltipValue: true,
-      data: getAnomalyScoreDataPoints(
-        buckets,
-        timeSeriesDates,
-        bucketSizeInMillis
-      ),
-      type: 'areaMaxHeight',
-      color: 'none',
-      areaColor: rgba(colors.apmRed, 0.1)
-      // areaColor: 'rgba(60, 100, 50, 0.5)'
-    },
-    anomalyBoundariesSeries: {
-      title: 'Anomaly Boundaries',
-      hideLegend: true,
-      hideTooltipValue: true,
-      data: getAnomalyBoundaryDataPoints(buckets, timeSeriesDates),
-      type: 'area',
-      color: 'none',
-      // areaColor: 'rgba(30, 100, 30, 0.5)'
-      areaColor: rgba(colors.apmBlue, 0.1)
-    }
+    anomalyScore: getAnomalyScoreDataPoints(
+      buckets,
+      timeSeriesDates,
+      bucketSizeInMillis
+    ),
+    anomalyBoundaries: getAnomalyBoundaryDataPoints(buckets, timeSeriesDates)
   };
 }
 

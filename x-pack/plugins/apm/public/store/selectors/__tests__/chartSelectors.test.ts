@@ -4,56 +4,94 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { TimeSeriesAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_timeseries_data';
+import { ApmTimeSeriesResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_timeseries_data/transform';
 import { getResponseTimeSeries, getTpmSeries } from '../chartSelectors';
 
 describe('chartSelectors', () => {
   describe('getResponseTimeSeries', () => {
-    const chartsData = {
-      dates: [0, 1000, 2000, 3000, 4000, 5000],
+    const apmTimeseries = {
       responseTimes: {
-        avg: [100, 200, 150, 250, 100, 50],
-        p95: [200, 300, 250, 350, 200, 150],
-        p99: [300, 400, 350, 450, 100, 50]
+        avg: [
+          { x: 0, y: 100 },
+          { x: 1000, y: 200 },
+          { x: 2000, y: 150 },
+          { x: 3000, y: 250 },
+          { x: 4000, y: 100 },
+          { x: 5000, y: 50 }
+        ],
+        p95: [
+          { x: 0, y: 200 },
+          { x: 1000, y: 300 },
+          { x: 2000, y: 250 },
+          { x: 3000, y: 350 },
+          { x: 4000, y: 200 },
+          { x: 5000, y: 150 }
+        ],
+        p99: [
+          { x: 0, y: 300 },
+          { x: 1000, y: 400 },
+          { x: 2000, y: 350 },
+          { x: 3000, y: 450 },
+          { x: 4000, y: 100 },
+          { x: 5000, y: 50 }
+        ]
       },
       overallAvgDuration: 200
-    } as TimeSeriesAPIResponse;
+    } as ApmTimeSeriesResponse;
 
     it('should match snapshot', () => {
-      expect(getResponseTimeSeries(chartsData)).toMatchSnapshot();
+      expect(getResponseTimeSeries(apmTimeseries)).toMatchSnapshot();
     });
 
     it('should return 3 series', () => {
-      expect(getResponseTimeSeries(chartsData).length).toBe(3);
+      expect(getResponseTimeSeries(apmTimeseries).length).toBe(3);
     });
   });
 
   describe('getTpmSeries', () => {
-    const chartsData = {
+    const apmTimeseries = ({
       dates: [0, 1000, 2000, 3000, 4000, 5000],
       tpmBuckets: [
         {
           key: 'HTTP 2xx',
-          avg: 10,
-          values: [5, 10, 3, 8, 4, 9]
+          dataPoints: [
+            { x: 0, y: 5 },
+            { x: 1000, y: 10 },
+            { x: 2000, y: 3 },
+            { x: 3000, y: 8 },
+            { x: 4000, y: 4 },
+            { x: 5000, y: 9 }
+          ]
         },
         {
           key: 'HTTP 4xx',
-          avg: 2,
-          values: [1, 2, 3, 2, 3, 1]
+          dataPoints: [
+            { x: 0, y: 1 },
+            { x: 1000, y: 2 },
+            { x: 2000, y: 3 },
+            { x: 3000, y: 2 },
+            { x: 4000, y: 3 },
+            { x: 5000, y: 1 }
+          ]
         },
         {
           key: 'HTTP 5xx',
-          avg: 1,
-          values: [0, 1, 2, 1, 0, 2]
+          dataPoints: [
+            { x: 0, y: 0 },
+            { x: 1000, y: 1 },
+            { x: 2000, y: 2 },
+            { x: 3000, y: 1 },
+            { x: 4000, y: 0 },
+            { x: 5000, y: 2 }
+          ]
         }
       ]
-    } as TimeSeriesAPIResponse;
+    } as any) as ApmTimeSeriesResponse;
 
     const transactionType = 'MyTransactionType';
 
     it('should match snapshot', () => {
-      expect(getTpmSeries(chartsData, transactionType)).toMatchSnapshot();
+      expect(getTpmSeries(apmTimeseries, transactionType)).toMatchSnapshot();
     });
   });
 });
