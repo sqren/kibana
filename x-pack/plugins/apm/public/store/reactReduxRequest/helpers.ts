@@ -4,16 +4,17 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { RRRRenderResponse } from 'react-redux-request';
 import { createSelector } from 'reselect';
-import { get } from 'lodash';
 
-export const createInitialDataSelector = initialData => {
+export const createInitialDataSelector = <U>(initialData: U) => {
   return createSelector(
-    state => state,
+    (state?: RRRRenderResponse<U>) => state,
     state => {
       return {
-        ...state,
-        data: get(state, 'data') || initialData
+        status: state && state.status,
+        args: state && state.args ? state.args : [],
+        data: state && state.data ? state.data : initialData
       };
     }
   );

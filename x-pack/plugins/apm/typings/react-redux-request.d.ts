@@ -9,27 +9,41 @@
 declare module 'react-redux-request' {
   import React from 'react';
 
-  export interface RRRRenderResponse<T, P = any[]> {
-    status: 'SUCCESS' | 'LOADING' | 'FAILURE';
-    data: T;
-    args: P;
-  }
-
-  export type RRRRender<T, P = any[]> = (
-    res: RRRRenderResponse<T, P>
-  ) => JSX.Element | null;
-
-  export interface RequestProps<T, P> {
-    id: string;
-    fn: (args: any) => Promise<any>;
-    selector?: (state: any) => any;
-    args?: any[];
-    render?: RRRRender<T, P>;
-  }
-
   export function reducer(state: any): any;
 
-  export class Request<T, P = any[]> extends React.Component<
-    RequestProps<T, P>
-  > {}
+  export interface RRRRenderResponse<T> {
+    status: 'SUCCESS' | 'LOADING' | 'FAILURE' | undefined;
+    data: T;
+    args: any[];
+  }
+
+  export type RRRRender<T> = (res: RRRRenderResponse<T>) => JSX.Element | null;
+  export interface RRRState<Id extends string, FnReturnType> {
+    reactReduxRequest: { [K in Id]?: RRRRenderResponse<FnReturnType> };
+    [key: string]: any;
+  }
+
+  export function Request<
+    Args extends any[],
+    Id extends string,
+    FnReturnType,
+    SelectorReturnType
+  >({
+    id,
+    args,
+    fn,
+    selector,
+    render
+  }: {
+    id: Id;
+    args: Args;
+    fn: (...args: Args) => Promise<FnReturnType>;
+    selector: (
+      state: {
+        reactReduxRequest: { [K in Id]?: RRRRenderResponse<FnReturnType> };
+        [key: string]: any;
+      }
+    ) => RRRRenderResponse<SelectorReturnType> | { data: any };
+    render: (res: RRRRenderResponse<SelectorReturnType>) => any;
+  }): JSX.Element | null;
 }

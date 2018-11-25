@@ -6,7 +6,7 @@
 
 import { get } from 'lodash';
 import React from 'react';
-import { Request, RRRRender } from 'react-redux-request';
+import { Request, RRRRender, RRRState } from 'react-redux-request';
 import { TRACE_ID } from 'x-pack/plugins/apm/common/constants';
 import { TraceAPIResponse } from 'x-pack/plugins/apm/server/lib/traces/get_trace';
 import { Transaction } from 'x-pack/plugins/apm/typings/Transaction';
@@ -16,16 +16,14 @@ import {
 } from '../../components/app/TransactionDetails/Transaction/WaterfallContainer/Waterfall/waterfall_helpers/waterfall_helpers';
 import { loadTrace } from '../../services/rest/apm';
 import { IUrlParams } from '../urlParams';
-// @ts-ignore
-import { createInitialDataSelector } from './helpers';
-
-export const ID = 'waterfallV2';
 
 interface Props {
   urlParams: IUrlParams;
   transaction: Transaction;
   render: RRRRender<IWaterfall>;
 }
+
+const defaultResponse = { data: undefined };
 
 export function WaterfallV2Request({ urlParams, transaction, render }: Props) {
   const { start, end } = urlParams;
@@ -36,9 +34,12 @@ export function WaterfallV2Request({ urlParams, transaction, render }: Props) {
   }
 
   return (
-    <Request<TraceAPIResponse>
-      id={ID}
+    <Request
+      id="waterfallV2"
       fn={loadTrace}
+      selector={(state: RRRState<'waterfallV2', TraceAPIResponse>) =>
+        state.reactReduxRequest.waterfallV2 || defaultResponse
+      }
       args={[{ traceId, start, end }]}
       render={({ args, data = [], status }) => {
         const waterfall = getWaterfall(data, transaction);

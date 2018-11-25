@@ -5,25 +5,18 @@
  */
 
 import React from 'react';
-import { Request, RRRRender } from 'react-redux-request';
-import { Transaction } from 'x-pack/plugins/apm/typings/Transaction';
+import { Request, RRRRender, RRRState } from 'react-redux-request';
+import { TransactionAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/get_transaction';
 import { loadTransaction } from '../../services/rest/apm';
-import { IReduxState } from '../rootReducer';
 import { IUrlParams } from '../urlParams';
-// @ts-ignore
-import { createInitialDataSelector } from './helpers';
 
-const ID = 'transactionDetails';
-export function getTransactionDetails(state: IReduxState) {
-  return state.reactReduxRequest[ID];
-}
-
+const defaultResponse = { data: undefined };
 export function TransactionDetailsRequest({
   urlParams,
   render
 }: {
   urlParams: IUrlParams;
-  render: RRRRender<Transaction | null>;
+  render: RRRRender<TransactionAPIResponse | undefined>;
 }) {
   const { serviceName, start, end, transactionId, traceId, kuery } = urlParams;
 
@@ -33,9 +26,11 @@ export function TransactionDetailsRequest({
 
   return (
     <Request
-      id={ID}
+      id="transactionDetails"
       fn={loadTransaction}
-      selector={getTransactionDetails}
+      selector={(
+        state: RRRState<'transactionDetails', TransactionAPIResponse>
+      ) => state.reactReduxRequest.transactionDetails || defaultResponse}
       args={[{ serviceName, start, end, transactionId, traceId, kuery }]}
       render={render}
     />

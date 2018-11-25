@@ -6,29 +6,33 @@
 
 import React from 'react';
 import * as rest from '../../../services/rest/apm';
-import { getServiceList, ServiceListRequest } from '../serviceList';
+// @ts-ignore
 import { mountWithStore } from '../../../utils/testHelpers';
+import { getServiceList, ServiceListRequest } from '../serviceList';
 
 describe('serviceList', () => {
   describe('getServiceList', () => {
     it('should return default value when empty', () => {
-      const state = { reactReduxRequest: {}, sorting: { service: {} } };
-      expect(getServiceList(state)).toEqual({ data: [] });
+      const state = { reactReduxRequest: {}, sorting: { service: {} } } as any;
+      expect(getServiceList(state)).toEqual({ args: [], data: [] });
     });
 
     it('should return serviceList when not empty', () => {
       const state = {
         reactReduxRequest: { serviceList: { data: [{ foo: 'bar' }] } },
         sorting: { service: {} }
-      };
-      expect(getServiceList(state)).toEqual({ data: [{ foo: 'bar' }] });
+      } as any;
+      expect(getServiceList(state)).toEqual({
+        args: [],
+        data: [{ foo: 'bar' }]
+      });
     });
   });
 
   describe('ServiceListRequest', () => {
-    let loadSpy;
-    let renderSpy;
-    let wrapper;
+    let loadSpy: jest.Mock;
+    let renderSpy: jest.Mock;
+    let wrapper: any;
 
     beforeEach(() => {
       const state = {
@@ -38,12 +42,12 @@ describe('serviceList', () => {
         sorting: { service: {} }
       };
 
-      loadSpy = jest.spyOn(rest, 'loadServiceList').mockReturnValue();
+      loadSpy = jest.spyOn(rest, 'loadServiceList').mockReturnValue(undefined);
       renderSpy = jest.fn().mockReturnValue(<div>rendered</div>);
 
       wrapper = mountWithStore(
         <ServiceListRequest
-          urlParams={{ start: 'myStart', end: 'myEnd' }}
+          urlParams={{ start: 10, end: 1337 }}
           render={renderSpy}
         />,
         state
@@ -52,6 +56,7 @@ describe('serviceList', () => {
 
     it('should call render method', () => {
       expect(renderSpy).toHaveBeenCalledWith({
+        args: [],
         data: [{ foo: 'bar' }],
         status: 'my-status'
       });
@@ -59,8 +64,8 @@ describe('serviceList', () => {
 
     it('should call "loadServiceList"', () => {
       expect(loadSpy).toHaveBeenCalledWith({
-        start: 'myStart',
-        end: 'myEnd'
+        start: 10,
+        end: 1337
       });
     });
 

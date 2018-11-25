@@ -8,23 +8,25 @@ import { createInitialDataSelector } from '../helpers';
 
 describe('createInitialDataSelector', () => {
   it('should use initialData when data is missing from state', () => {
-    const state = {};
+    const state = {} as any;
     const initialData = { foo: 'bar' };
     const withInitialData = createInitialDataSelector(initialData);
 
     expect(withInitialData(state)).toBe(withInitialData(state));
-    expect(withInitialData(state, initialData)).toEqual({
+    expect(withInitialData(state)).toEqual({
+      args: [],
       data: { foo: 'bar' }
     });
   });
 
   it('should use data when available', () => {
-    const state = { data: 'hello' };
+    const state = { data: 'hello' } as any;
     const initialData = { foo: 'bar' };
     const withInitialData = createInitialDataSelector(initialData);
 
     expect(withInitialData(state)).toBe(withInitialData(state));
-    expect(withInitialData(state, initialData)).toEqual({
+    expect(withInitialData(state)).toEqual({
+      args: [],
       data: 'hello'
     });
   });

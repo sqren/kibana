@@ -5,31 +5,43 @@
  */
 
 import React from 'react';
-import { Request, RRRRender, RRRRenderResponse } from 'react-redux-request';
+import {
+  Request,
+  RRRRender,
+  RRRRenderResponse,
+  RRRState
+} from 'react-redux-request';
 import { ITransactionDistributionAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/distribution';
 import { loadTransactionDistribution } from '../../services/rest/apm';
-import { IReduxState } from '../rootReducer';
 import { IUrlParams } from '../urlParams';
-// @ts-ignore
 import { createInitialDataSelector } from './helpers';
 
-const ID = 'transactionDistribution';
-const INITIAL_DATA = { buckets: [], totalHits: 0 };
-const withInitialData = createInitialDataSelector(INITIAL_DATA);
+type IState = RRRState<
+  'transactionDistribution',
+  ITransactionDistributionAPIResponse
+>;
 
+const INITIAL_DATA: ITransactionDistributionAPIResponse = {
+  buckets: [],
+  bucketSize: 0,
+  totalHits: 0
+};
+
+const withInitialData = createInitialDataSelector(INITIAL_DATA);
 export function getTransactionDistribution(
-  state: IReduxState
+  state: IState
 ): RRRRenderResponse<ITransactionDistributionAPIResponse> {
-  return withInitialData(state.reactReduxRequest[ID]);
+  return withInitialData(state.reactReduxRequest.transactionDistribution);
 }
 
-export function getDefaultDistributionSample(state: IReduxState) {
+export function getDefaultDistributionSample(state: IState) {
   const distribution = getTransactionDistribution(state);
-  const { defaultSample = {} } = distribution.data;
-  return {
-    traceId: defaultSample.traceId,
-    transactionId: defaultSample.transactionId
-  };
+  if (distribution.data.defaultSample !== undefined) {
+    const { traceId, transactionId } = distribution.data.defaultSample;
+    return { traceId, transactionId };
+  }
+
+  return {};
 }
 
 export function TransactionDistributionRequest({
@@ -47,7 +59,7 @@ export function TransactionDistributionRequest({
 
   return (
     <Request
-      id={ID}
+      id="transactionDistribution"
       fn={loadTransactionDistribution}
       args={[{ serviceName, start, end, transactionName, kuery }]}
       selector={getTransactionDistribution}

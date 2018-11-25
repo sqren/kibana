@@ -6,7 +6,6 @@
 
 import { reducer } from 'react-redux-request';
 import { combineReducers } from 'redux';
-import { StringMap } from '../../typings/common';
 // @ts-ignore
 import location from './location';
 import { IUrlParams, urlParamsReducer } from './urlParams';
@@ -14,7 +13,11 @@ import { IUrlParams, urlParamsReducer } from './urlParams';
 export interface IReduxState {
   location: any;
   urlParams: IUrlParams;
-  reactReduxRequest: StringMap<any>;
+  reactReduxRequest: {
+    transactionDistribution: any;
+    [name: string]: any;
+  };
+  [name: string]: any;
 }
 
 export const rootReducer = combineReducers({

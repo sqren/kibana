@@ -20,29 +20,42 @@ import { colors } from '../../style/variables';
 import { asDecimal, asMillis, tpmUnit } from '../../utils/formatters';
 import { IUrlParams } from '../urlParams';
 
-export const getEmptySerie = memoize(
-  (start = Date.now() - 3600000, end = Date.now()) => {
-    const dates = d3.time
-      .scale()
-      .domain([new Date(start), new Date(end)])
-      .ticks();
-
-    return [
-      {
-        data: dates.map(x => ({
-          x: x.getTime(),
-          y: 1
-        }))
-      }
-    ];
+const INITIAL_DATA = {
+  apmTimeseries: {
+    totalHits: 0,
+    responseTimes: {
+      avg: [],
+      p95: [],
+      p99: []
+    },
+    tpmBuckets: [],
+    overallAvgDuration: undefined
   },
-  (start: number, end: number) => [start, end].join('_')
-);
+  anomalyTimeseries: undefined
+};
+
+interface TimeSerie {
+  title: string;
+  titleShort?: string;
+  hideLegend?: boolean;
+  hideTooltipValue?: boolean;
+  data: Array<Coordinate | RectCoordinate>;
+  legendValue?: string;
+  type: string;
+  color: string;
+  areaColor?: string;
+}
+
+export interface ICharts {
+  noHits: boolean;
+  tpmSeries: TimeSerie[];
+  responseTimeSeries: TimeSerie[];
+}
 
 export function getCharts(
   urlParams: IUrlParams,
-  timeseriesResponse: TimeSeriesAPIResponse
-) {
+  timeseriesResponse: TimeSeriesAPIResponse = INITIAL_DATA
+): ICharts {
   const { start, end, transactionType } = urlParams;
   const { apmTimeseries, anomalyTimeseries } = timeseriesResponse;
   const noHits = apmTimeseries.totalHits === 0;
@@ -59,18 +72,6 @@ export function getCharts(
     tpmSeries,
     responseTimeSeries
   };
-}
-
-interface TimeSerie {
-  title: string;
-  titleShort?: string;
-  hideLegend?: boolean;
-  hideTooltipValue?: boolean;
-  data: Array<Coordinate | RectCoordinate>;
-  legendValue?: string;
-  type: string;
-  color: string;
-  areaColor?: string;
 }
 
 export function getResponseTimeSeries(
@@ -188,4 +189,31 @@ function getColorByKey(keys: string[]) {
   ]);
 
   return (key: string) => assignedColors[key] || unassignedColors[key];
+}
+
+export const getEmptySerie = memoize(
+  _getEmptySeries,
+  (start: number, end: number) => [start, end].join('_')
+);
+
+function _getEmptySeries(
+  start = Date.now() - 3600000,
+  end = Date.now()
+): TimeSerie[] {
+  const dates = d3.time
+    .scale()
+    .domain([new Date(start), new Date(end)])
+    .ticks();
+
+  return [
+    {
+      title: '',
+      data: dates.map(x => ({
+        x: x.getTime(),
+        y: 1
+      })),
+      type: 'line',
+      color: colors.apmBlue
+    }
+  ];
 }

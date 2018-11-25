@@ -6,12 +6,12 @@
 
 import { get } from 'lodash';
 import React from 'react';
-import { Request, RRRRender } from 'react-redux-request';
+import { Request, RRRRender, RRRState } from 'react-redux-request';
 import {
   SERVICE_NAME,
   TRANSACTION_ID
 } from 'x-pack/plugins/apm/common/constants';
-import { Span } from 'x-pack/plugins/apm/typings/Span';
+import { SpanListAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/spans/get_spans';
 import { Transaction } from 'x-pack/plugins/apm/typings/Transaction';
 import {
   getWaterfall,
@@ -22,14 +22,13 @@ import { IUrlParams } from '../urlParams';
 // @ts-ignore
 import { createInitialDataSelector } from './helpers';
 
-export const ID = 'waterfallV1';
-
 interface Props {
   urlParams: IUrlParams;
   transaction: Transaction;
   render: RRRRender<IWaterfall>;
 }
 
+const defaultResponse = { data: undefined };
 export function WaterfallV1Request({ urlParams, transaction, render }: Props) {
   const { start, end } = urlParams;
   const transactionId: string = get(transaction, TRANSACTION_ID);
@@ -40,9 +39,12 @@ export function WaterfallV1Request({ urlParams, transaction, render }: Props) {
   }
 
   return (
-    <Request<Span[]>
-      id={ID}
+    <Request
+      id="waterfallV1"
       fn={loadSpans}
+      selector={(state: RRRState<'waterfallV1', SpanListAPIResponse>) =>
+        state.reactReduxRequest.waterfallV1 || defaultResponse
+      }
       args={[{ serviceName, start, end, transactionId }]}
       render={({ status, data = [], args }) => {
         const waterfall = getWaterfall([transaction, ...data], transaction);
