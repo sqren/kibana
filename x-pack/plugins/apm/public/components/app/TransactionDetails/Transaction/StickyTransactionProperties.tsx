@@ -17,17 +17,21 @@ import {
 import { Transaction } from '../../../../../typings/es_schemas/Transaction';
 import { NOT_AVAILABLE_LABEL } from '../../../../constants';
 import { asPercent, asTime } from '../../../../utils/formatters';
+import { KibanaLink } from '../../../shared/Links/KibanaLink';
+
 import {
   IStickyProperty,
   StickyProperties
 } from '../../../shared/StickyProperties';
 
-interface Props {
+export interface Props {
+  errorCount?: number | null;
   transaction: Transaction;
   totalDuration?: number;
 }
 
 export function StickyTransactionProperties({
+  errorCount,
   transaction,
   totalDuration
 }: Props) {
@@ -90,6 +94,29 @@ export function StickyTransactionProperties({
       width: '25%'
     }
   ];
+
+  if (errorCount) {
+    stickyProperties.push({
+      label: i18n.translate('xpack.apm.transactionDetails.errorsLabel', {
+        defaultMessage: 'Errors'
+      }),
+      val: (
+        <KibanaLink
+          pathname={'/app/apm'}
+          hash={`/${idx(transaction, _ => _.service.name)}/errors`}
+          query={{
+            kuery: `transaction.id~3A~22${transaction.transaction.id}~22`
+          }}
+        >
+          {i18n.translate('xpack.apm.transactionDetails.viewErrors', {
+            defaultMessage:
+              errorCount === 1 ? `View 1 Error` : `View ${errorCount} Errors`
+          })}
+        </KibanaLink>
+      ),
+      width: '25%'
+    });
+  }
 
   return <StickyProperties stickyProperties={stickyProperties} />;
 }
