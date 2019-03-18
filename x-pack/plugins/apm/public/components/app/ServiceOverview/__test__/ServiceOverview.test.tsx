@@ -39,7 +39,7 @@ describe('Service Overview -> View', () => {
     console.error = originalError;
   });
 
-  it('should render list data is found', async () => {
+  it('should render services, when list is not empty', async () => {
     // mock rest requests
     const spy1 = jest
       .spyOn(statusCheck, 'loadAgentStatus')
@@ -77,7 +77,7 @@ describe('Service Overview -> View', () => {
     expect(container.querySelectorAll('.euiTableRow')).toMatchSnapshot();
   });
 
-  it('should render message when list is empty and no historical data is found', async () => {
+  it('should render getting started message, when list is empty and no historical data is found', async () => {
     // mock rest requests
     const spy1 = jest
       .spyOn(statusCheck, 'loadAgentStatus')
@@ -106,7 +106,7 @@ describe('Service Overview -> View', () => {
     expect(container.querySelectorAll('.euiTableRow')).toMatchSnapshot();
   });
 
-  it('should render message when list is empty and historical data is found', async () => {
+  it('should render empty message, when list is empty and historical data is found', async () => {
     // mock rest requests
     const spy1 = jest
       .spyOn(statusCheck, 'loadAgentStatus')
