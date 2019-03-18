@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
 import { render, wait, waitForElement } from 'react-testing-library';
 import 'react-testing-library/cleanup-after-each';
 import * as apmRestServices from 'x-pack/plugins/apm/public/services/rest/apm/services';
@@ -17,13 +16,10 @@ import { ServiceOverview } from '../view';
 
 function Comp() {
   const store = configureStore();
-  const path = '/whatever';
 
   return (
     <Provider store={store}>
-      <MemoryRouter initialEntries={[path]}>
-        <ServiceOverview urlParams={{}} />
-      </MemoryRouter>
+      <ServiceOverview urlParams={{}} />
     </Provider>
   );
 }
@@ -31,6 +27,16 @@ function Comp() {
 describe('Service Overview -> View', () => {
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  // Suppress warnings about "act" until async/await syntax is supported: https://github.com/facebook/react/issues/14769
+  /* tslint:disable:no-console */
+  const originalError = console.error;
+  beforeAll(() => {
+    console.error = jest.fn();
+  });
+  afterAll(() => {
+    console.error = originalError;
   });
 
   it('should render list data is found', async () => {
