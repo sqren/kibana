@@ -11,25 +11,19 @@ import { IUrlParams } from '../../../store/urlParams';
 import { callApi } from '../callApi';
 import { getEncodedEsQuery } from './apm';
 
-interface ErrorGroupListParams extends IUrlParams {
-  size: number;
-}
-
 export async function loadErrorGroupList({
   serviceName,
   start,
   end,
   kuery,
-  size,
   sortField,
   sortDirection
-}: ErrorGroupListParams) {
+}: IUrlParams) {
   return callApi<ErrorGroupListAPIResponse>({
     pathname: `/api/apm/services/${serviceName}/errors`,
     query: {
       start,
       end,
-      size,
       sortField,
       sortDirection,
       esFilterQuery: await getEncodedEsQuery(kuery)

@@ -17,10 +17,11 @@ import React from 'react';
 import { ErrorDistribution } from 'x-pack/plugins/apm/public/components/app/ErrorGroupDetails/Distribution';
 import { SyncChartGroup } from 'x-pack/plugins/apm/public/components/shared/charts/SyncChartGroup';
 import { TransactionCharts } from 'x-pack/plugins/apm/public/components/shared/charts/TransactionCharts';
-import { ErrorDistributionRequest } from 'x-pack/plugins/apm/public/store/reactReduxRequest/errorDistribution';
 import { MetricsChartDataRequest } from 'x-pack/plugins/apm/public/store/reactReduxRequest/serviceMetricsCharts';
 import { TransactionOverviewChartsRequestForAllTypes } from 'x-pack/plugins/apm/public/store/reactReduxRequest/transactionOverviewCharts';
 import { IUrlParams } from 'x-pack/plugins/apm/public/store/urlParams';
+import { useFetcher } from '../../../hooks/useFetcher';
+import { loadErrorDistribution } from '../../../services/rest/apm/error_groups';
 import { CPUUsageChart } from './CPUUsageChart';
 import { MemoryUsageChart } from './MemoryUsageChart';
 
@@ -30,6 +31,15 @@ interface ServiceMetricsProps {
 }
 
 export function ServiceMetrics({ urlParams, location }: ServiceMetricsProps) {
+  const { serviceName, start, end, errorGroupId, kuery } = urlParams;
+  const { data: errorDistributionData } = useFetcher(loadErrorDistribution, [
+    { serviceName, start, end, errorGroupId, kuery }
+  ]);
+
+  if (!errorDistributionData) {
+    return null;
+  }
+
   return (
     <React.Fragment>
       <TransactionOverviewChartsRequestForAllTypes
@@ -48,18 +58,13 @@ export function ServiceMetrics({ urlParams, location }: ServiceMetricsProps) {
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiPanel>
-            <ErrorDistributionRequest
-              urlParams={urlParams}
-              render={({ data }) => (
-                <ErrorDistribution
-                  distribution={data}
-                  title={i18n.translate(
-                    'xpack.apm.serviceDetails.metrics.errorOccurrencesChartTitle',
-                    {
-                      defaultMessage: 'Error occurrences'
-                    }
-                  )}
-                />
+            <ErrorDistribution
+              distribution={errorDistributionData}
+              title={i18n.translate(
+                'xpack.apm.serviceDetails.metrics.errorOccurrencesChartTitle',
+                {
+                  defaultMessage: 'Error occurrences'
+                }
               )}
             />
           </EuiPanel>

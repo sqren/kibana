@@ -129,16 +129,11 @@ export function toNumber(value?: string) {
   }
 }
 
-function toString(str?: string | string[]) {
-  if (
-    str === '' ||
-    str === 'null' ||
-    str === 'undefined' ||
-    Array.isArray(str)
-  ) {
+function toString(value?: string) {
+  if (value === '' || value === 'null' || value === 'undefined') {
     return;
   }
-  return str;
+  return value;
 }
 
 export function toBoolean(value?: string) {
