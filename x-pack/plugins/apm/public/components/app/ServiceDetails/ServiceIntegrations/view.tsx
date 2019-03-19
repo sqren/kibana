@@ -22,9 +22,7 @@ import { WatcherFlyout } from './WatcherFlyout';
 export interface ServiceIntegrationProps {
   mlAvailable: boolean;
   location: Location;
-  serviceDetails: {
-    types: string[];
-  };
+  transactionTypes: string[];
   urlParams: IUrlParams;
 }
 interface ServiceIntegrationState {

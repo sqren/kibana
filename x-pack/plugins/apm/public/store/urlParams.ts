@@ -13,7 +13,6 @@ import {
   toQuery
 } from '../components/shared/Links/url_helpers';
 import { LOCATION_UPDATE } from './location';
-import { getDefaultTransactionType } from './reactReduxRequest/serviceDetails';
 import { getDefaultDistributionSample } from './reactReduxRequest/transactionDistribution';
 import { IReduxState } from './rootReducer';
 
@@ -189,20 +188,7 @@ export function updateTimePicker(time: TimeUpdate) {
 // Selectors
 export const getUrlParams = createSelector(
   (state: IReduxState) => state.urlParams,
-  getDefaultTransactionType,
-  getDefaultDistributionSample,
-  (
-    urlParams,
-    transactionType: string,
-    { traceId, transactionId }
-  ): IUrlParams => {
-    return {
-      transactionType,
-      transactionId,
-      traceId,
-      ...urlParams
-    };
-  }
+  urlParams => urlParams
 );
 
 export interface IUrlParams {
