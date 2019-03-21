@@ -41,13 +41,22 @@ const ErrorGroupOverview: React.SFC<ErrorGroupOverviewProps> = ({
     sortField,
     sortDirection
   } = urlParams;
-  const { data: errorDistributionData } = useFetcher(loadErrorDistribution, [
-    { serviceName, start, end, errorGroupId, kuery }
-  ]);
+  const { data: errorDistributionData } = useFetcher(loadErrorDistribution, {
+    serviceName,
+    start,
+    end,
+    errorGroupId,
+    kuery
+  });
 
-  const { data: errorGroupListData } = useFetcher(loadErrorGroupList, [
-    { serviceName, start, end, sortField, sortDirection, kuery }
-  ]);
+  const { data: errorGroupListData } = useFetcher(loadErrorGroupList, {
+    serviceName,
+    start,
+    end,
+    sortField,
+    sortDirection,
+    kuery
+  });
 
   if (!errorDistributionData || !errorGroupListData) {
     return null;

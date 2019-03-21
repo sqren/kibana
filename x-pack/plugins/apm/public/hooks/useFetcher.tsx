@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { flatten, isObject } from 'lodash';
 import { useEffect, useState } from 'react';
 
 export enum FETCH_STATUS {
@@ -13,20 +12,20 @@ export enum FETCH_STATUS {
   FAILURE = 'failure'
 }
 
-export function useFetcher<Args extends any[], Response>(
-  fn: (...args: Args) => Promise<Response>,
-  fnArgs: Args
+export function useFetcher<Opts, Response>(
+  fn: (options: Opts) => Promise<Response>,
+  options: Opts
 ) {
-  const [status, setStatus] = useState<FETCH_STATUS | null>(null);
-  const [data, setData] = useState<Response | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  let didCancel: boolean;
+  const [status, setStatus] = useState<FETCH_STATUS | undefined>(undefined);
+  const [data, setData] = useState<Response | undefined>(undefined);
+  const [error, setError] = useState<Error | undefined>(undefined);
+  let didCancel = false;
 
   async function fetchData() {
     setStatus(FETCH_STATUS.LOADING);
-    setError(null);
+    setError(undefined);
     try {
-      const fnData = await fn(...fnArgs);
+      const fnData = await fn(options);
       if (!didCancel) {
         setData(fnData);
         setStatus(FETCH_STATUS.SUCCESS);
@@ -37,20 +36,16 @@ export function useFetcher<Args extends any[], Response>(
     }
   }
 
-  // support objects as arguments. Convert object to flat array and pass the key/values as a flat array
-  const flatFnArgs = flatten(
-    fnArgs.map(arg =>
-      isObject(arg) ? [...Object.keys(arg), ...Object.values(arg)] : arg
-    )
+  useEffect(
+    () => {
+      didCancel = false;
+      fetchData();
+      return () => {
+        didCancel = true;
+      };
+    },
+    [...Object.keys(options), ...Object.values(options)]
   );
-
-  useEffect(() => {
-    didCancel = false;
-    fetchData();
-    return () => {
-      didCancel = true;
-    };
-  }, flatFnArgs);
 
   return {
     data,

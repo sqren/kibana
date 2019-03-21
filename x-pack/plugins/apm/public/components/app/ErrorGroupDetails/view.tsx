@@ -68,13 +68,18 @@ interface Props {
 
 export function ErrorGroupDetailsView({ urlParams, location }: Props) {
   const { serviceName, start, end, errorGroupId } = urlParams;
-  const { data: errorGroupData } = useFetcher(loadErrorGroupDetails, [
-    { serviceName, start, end, errorGroupId }
-  ]);
+  const { data: errorGroupData } = useFetcher(loadErrorGroupDetails, {
+    serviceName,
+    start,
+    end,
+    errorGroupId
+  });
 
-  const { data: errorDistributionData } = useFetcher(loadErrorDistribution, [
-    { serviceName, start, end }
-  ]);
+  const { data: errorDistributionData } = useFetcher(loadErrorDistribution, {
+    serviceName,
+    start,
+    end
+  });
 
   if (!errorGroupData || !errorDistributionData) {
     return null;
