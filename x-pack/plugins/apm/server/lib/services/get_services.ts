@@ -7,6 +7,7 @@
 import { BucketAgg } from 'elasticsearch';
 import { ESFilter } from 'elasticsearch';
 import { idx } from 'x-pack/plugins/apm/common/idx';
+import { PromiseReturnType } from 'x-pack/plugins/apm/typings/common';
 import {
   PROCESSOR_EVENT,
   SERVICE_AGENT_NAME,
@@ -16,19 +17,8 @@ import {
 import { rangeFilter } from '../helpers/range_filter';
 import { Setup } from '../helpers/setup_request';
 
-export interface IServiceListItem {
-  serviceName: string;
-  agentName: string | undefined;
-  transactionsPerMinute: number;
-  errorsPerMinute: number;
-  avgResponseTime: number;
-}
-
-export type ServiceListAPIResponse = IServiceListItem[];
-
-export async function getServices(
-  setup: Setup
-): Promise<ServiceListAPIResponse> {
+export type ServiceListAPIResponse = PromiseReturnType<typeof getServices>;
+export async function getServices(setup: Setup) {
   const { start, end, esFilterQuery, client, config } = setup;
 
   const filter: ESFilter[] = [

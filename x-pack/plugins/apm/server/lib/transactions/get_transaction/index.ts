@@ -11,22 +11,17 @@ import {
   TRANSACTION_ID
 } from 'x-pack/plugins/apm/common/elasticsearch_fieldnames';
 import { idx } from 'x-pack/plugins/apm/common/idx';
+import { PromiseReturnType } from 'x-pack/plugins/apm/typings/common';
 import { Transaction } from 'x-pack/plugins/apm/typings/es_schemas/ui/Transaction';
 import { rangeFilter } from '../../helpers/range_filter';
 import { Setup } from '../../helpers/setup_request';
 
-export type TransactionAPIResponse = Transaction | undefined;
-
-export interface TransactionWithErrorCountAPIResponse {
-  transaction: TransactionAPIResponse;
-  errorCount: number;
-}
-
+export type TransactionAPIResponse = PromiseReturnType<typeof getTransaction>;
 export async function getTransaction(
   transactionId: string,
   traceId: string,
   setup: Setup
-): Promise<TransactionAPIResponse> {
+) {
   const { start, end, esFilterQuery, client, config } = setup;
 
   const filter: ESFilter[] = [

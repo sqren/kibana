@@ -4,8 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { AggregationSearchResponse, SearchParams } from 'elasticsearch';
-import { StringMap } from 'x-pack/plugins/apm/typings/common';
+import { SearchParams } from 'elasticsearch';
+import {
+  PromiseReturnType,
+  StringMap
+} from 'x-pack/plugins/apm/typings/common';
 import {
   TRANSACTION_DURATION,
   TRANSACTION_NAME
@@ -36,12 +39,8 @@ interface Aggs {
   };
 }
 
-export type ESResponse = AggregationSearchResponse<void, Aggs>;
-
-export function transactionGroupsFetcher(
-  setup: Setup,
-  bodyQuery: StringMap
-): Promise<ESResponse> {
+export type ESResponse = PromiseReturnType<typeof transactionGroupsFetcher>;
+export function transactionGroupsFetcher(setup: Setup, bodyQuery: StringMap) {
   const { esFilterQuery, client, config } = setup;
   const params: SearchParams = {
     index: config.get<string>('apm_oss.transactionIndices'),

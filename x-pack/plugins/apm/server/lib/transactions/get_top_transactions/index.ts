@@ -12,9 +12,9 @@ import {
 } from 'x-pack/plugins/apm/common/elasticsearch_fieldnames';
 import { Setup } from 'x-pack/plugins/apm/server/lib/helpers/setup_request';
 
+import { PromiseReturnType } from 'x-pack/plugins/apm/typings/common';
 import { rangeFilter } from '../../helpers/range_filter';
 import { getTransactionGroups } from '../../transaction_groups';
-import { ITransactionGroup } from '../../transaction_groups/transform';
 
 export interface IOptions {
   setup: Setup;
@@ -22,8 +22,9 @@ export interface IOptions {
   serviceName: string;
 }
 
-export type TransactionListAPIResponse = ITransactionGroup[];
-
+export type TransactionListAPIResponse = PromiseReturnType<
+  typeof getTopTransactions
+>;
 export async function getTopTransactions({
   setup,
   transactionType,

@@ -12,7 +12,6 @@ import mean from 'lodash.mean';
 import { rgba } from 'polished';
 import { MetricsChartAPIResponse } from 'x-pack/plugins/apm/server/lib/metrics/get_all_metrics_chart_data';
 import { TimeSeriesAPIResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts';
-import { AnomalyTimeSeriesResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_anomaly_data/transform';
 import { ApmTimeSeriesResponse } from 'x-pack/plugins/apm/server/lib/transactions/charts/get_timeseries_data/transform';
 import { StringMap } from 'x-pack/plugins/apm/typings/common';
 import {
@@ -84,9 +83,8 @@ const INITIAL_DATA = {
 
 export function getTransactionCharts(
   { start, end, transactionType }: IUrlParams,
-  timeseriesResponse: TimeSeriesAPIResponse = INITIAL_DATA
+  { apmTimeseries, anomalyTimeseries }: TimeSeriesAPIResponse = INITIAL_DATA
 ): ITransactionChartData {
-  const { apmTimeseries, anomalyTimeseries } = timeseriesResponse;
   const noHits = apmTimeseries.totalHits === 0;
   const tpmSeries = noHits
     ? getEmptySerie(start, end)
@@ -94,13 +92,13 @@ export function getTransactionCharts(
 
   const responseTimeSeries = noHits
     ? getEmptySerie(start, end)
-    : getResponseTimeSeries(apmTimeseries, anomalyTimeseries);
+    : getResponseTimeSeries({ apmTimeseries, anomalyTimeseries });
 
   return {
     noHits,
     tpmSeries,
     responseTimeSeries,
-    hasMLJob: timeseriesResponse.anomalyTimeseries !== undefined
+    hasMLJob: anomalyTimeseries !== undefined
   };
 }
 
@@ -206,10 +204,10 @@ interface TimeSerie {
   areaColor?: string;
 }
 
-export function getResponseTimeSeries(
-  apmTimeseries: ApmTimeSeriesResponse,
-  anomalyTimeseries?: AnomalyTimeSeriesResponse
-) {
+export function getResponseTimeSeries({
+  apmTimeseries,
+  anomalyTimeseries
+}: TimeSeriesAPIResponse) {
   const { overallAvgDuration } = apmTimeseries;
   const { avg, p95, p99 } = apmTimeseries.responseTimes;
 

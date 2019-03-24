@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { PromiseReturnType } from 'x-pack/plugins/apm/typings/common';
 import {
   PARENT_ID,
   PROCESSOR_EVENT,
@@ -12,13 +13,9 @@ import {
 import { rangeFilter } from '../helpers/range_filter';
 import { Setup } from '../helpers/setup_request';
 import { getTransactionGroups } from '../transaction_groups';
-import { ITransactionGroup } from '../transaction_groups/transform';
 
-export type TraceListAPIResponse = ITransactionGroup[];
-
-export async function getTopTraces(
-  setup: Setup
-): Promise<TraceListAPIResponse> {
+export type TraceListAPIResponse = PromiseReturnType<typeof getTopTraces>;
+export async function getTopTraces(setup: Setup) {
   const { start, end } = setup;
 
   const bodyQuery = {
