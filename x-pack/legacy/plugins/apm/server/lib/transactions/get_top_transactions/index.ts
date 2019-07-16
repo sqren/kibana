@@ -16,7 +16,7 @@ import { getTransactionGroups } from '../../transaction_groups';
 
 export interface IOptions {
   setup: Setup;
-  transactionType?: string;
+  transactionType: string | undefined;
   serviceName: string;
 }
 

@@ -14,7 +14,6 @@ import { fontFamilyCode, truncate } from '../../../../style/variables';
 import { asDecimal, asMillis } from '../../../../utils/formatters';
 import { ImpactBar } from '../../../shared/ImpactBar';
 import { APMLink } from '../../../shared/Links/APMLink';
-import { legacyEncodeURIComponent } from '../../../shared/Links/url_helpers';
 import { ITableColumn, ManagedTable } from '../../../shared/ManagedTable';
 import { LoadingStatePrompt } from '../../../shared/LoadingStatePrompt';
 import { EmptyMessage } from '../../../shared/EmptyMessage';
@@ -41,18 +40,18 @@ export function TransactionList({ items, serviceName, isLoading }: Props) {
         width: '50%',
         sortable: true,
         render: (transactionName: string, data: typeof items[0]) => {
-          const encodedType = legacyEncodeURIComponent(
-            data.sample.transaction.type
-          );
-          const encodedName = legacyEncodeURIComponent(transactionName);
-          const transactionPath = `/${serviceName}/transactions/${encodedType}/${encodedName}`;
-
           return (
             <EuiToolTip
               id="transaction-name-link-tooltip"
               content={transactionName || NOT_AVAILABLE_LABEL}
             >
-              <TransactionNameLink path={transactionPath}>
+              <TransactionNameLink
+                path={`/services/${serviceName}/transactions/view`}
+                query={{
+                  transactionName,
+                  transactionType: data.sample.transaction.type
+                }}
+              >
                 {transactionName || NOT_AVAILABLE_LABEL}
               </TransactionNameLink>
             </EuiToolTip>
