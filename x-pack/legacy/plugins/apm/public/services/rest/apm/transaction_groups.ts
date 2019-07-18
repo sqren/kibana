@@ -9,7 +9,6 @@ import { TimeSeriesAPIResponse } from '../../../../server/lib/transactions/chart
 import { TransactionDistributionAPIResponse } from '../../../../server/lib/transactions/distribution';
 import { TransactionListAPIResponse } from '../../../../server/lib/transactions/get_top_transactions';
 import { callApi } from '../callApi';
-import { getUiFiltersES } from '../../ui_filters/get_ui_filters_es';
 import { UIFilters } from '../../../../typings/ui-filters';
 
 export async function loadTransactionList({
@@ -31,7 +30,7 @@ export async function loadTransactionList({
       start,
       end,
       transactionType,
-      uiFiltersES: await getUiFiltersES(uiFilters)
+      uiFilters: JSON.stringify(uiFilters)
     }
   });
 }
@@ -64,7 +63,7 @@ export async function loadTransactionDistribution({
       transactionName,
       transactionId,
       traceId,
-      uiFiltersES: await getUiFiltersES(uiFilters)
+      uiFilters: JSON.stringify(uiFilters)
     }
   });
 }
@@ -91,7 +90,7 @@ export async function loadTransactionCharts({
       end,
       transactionType,
       transactionName,
-      uiFiltersES: await getUiFiltersES(uiFilters)
+      uiFilters: JSON.stringify(uiFilters)
     }
   });
 }
@@ -118,7 +117,7 @@ export async function loadTransactionBreakdown({
       end,
       transactionName,
       transactionType,
-      uiFiltersES: await getUiFiltersES(uiFilters)
+      uiFilters: JSON.stringify(uiFilters)
     }
   });
 }

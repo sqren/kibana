@@ -32,8 +32,8 @@ export function initTracesApi(core: InternalCoreSetup) {
       },
       tags: ['access:apm']
     },
-    handler: req => {
-      const setup = setupRequest(req);
+    handler: async req => {
+      const setup = await setupRequest(req);
 
       return getTopTraces(setup).catch(defaultErrorHandler);
     }
@@ -49,9 +49,9 @@ export function initTracesApi(core: InternalCoreSetup) {
       },
       tags: ['access:apm']
     },
-    handler: req => {
+    handler: async req => {
       const { traceId } = req.params;
-      const setup = setupRequest(req);
+      const setup = await setupRequest(req);
       return getTrace(traceId, setup).catch(defaultErrorHandler);
     }
   });

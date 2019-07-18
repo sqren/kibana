@@ -7,7 +7,6 @@
 import { TraceListAPIResponse } from '../../../../server/lib/traces/get_top_traces';
 import { TraceAPIResponse } from '../../../../server/lib/traces/get_trace';
 import { callApi } from '../callApi';
-import { getUiFiltersES } from '../../ui_filters/get_ui_filters_es';
 import { UIFilters } from '../../../../typings/ui-filters';
 
 export async function loadTrace({
@@ -42,7 +41,7 @@ export async function loadTraceList({
     query: {
       start,
       end,
-      uiFiltersES: await getUiFiltersES(uiFilters)
+      uiFilters: JSON.stringify(uiFilters)
     }
   });
 }
