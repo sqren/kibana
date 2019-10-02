@@ -19,21 +19,20 @@ const t = (id: string, defaultMessage: string) =>
 
 const SELECT_PLACEHOLDER_LABEL = `- ${t('selectPlaceholder', 'Select')} -`;
 
-interface Props {
-  selectedConfig: Config | null;
-  environment?: string;
-  setEnvironment: (env: string) => void;
-  serviceName?: string;
-  setServiceName: (env: string) => void;
+interface Values {
+  environment: string;
+  name: string;
 }
 
-export function ServiceSection({
-  selectedConfig,
-  environment,
-  setEnvironment,
-  serviceName,
-  setServiceName
-}: Props) {
+interface Props {
+  selectedConfig: Config | null;
+  values: Values;
+  onChange: (values: Values) => void;
+}
+
+export function ServiceSection({ selectedConfig, values, onChange }: Props) {
+  const { name: serviceName, environment } = values;
+
   const { data: serviceNames = [], status: serviceNamesStatus } = useFetcher(
     () => {
       return callApmApi({
@@ -90,8 +89,10 @@ export function ServiceSection({
           disabled={Boolean(selectedConfig) || serviceNamesStatus === 'loading'}
           onChange={e => {
             e.preventDefault();
-            setServiceName(e.target.value);
-            setEnvironment('');
+            onChange({
+              name: e.target.value,
+              environment: ''
+            });
           }}
         />
       </EuiFormRow>
@@ -115,7 +116,10 @@ export function ServiceSection({
           }
           onChange={e => {
             e.preventDefault();
-            setEnvironment(e.target.value);
+            onChange({
+              name: serviceName,
+              environment: e.target.value
+            });
           }}
         />
       </EuiFormRow>

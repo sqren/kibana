@@ -23,8 +23,16 @@ import { idx } from '@kbn/elastic-idx';
 import React, { useState } from 'react';
 import { toastNotifications } from 'ui/notify';
 import { i18n } from '@kbn/i18n';
-import { isRight } from 'fp-ts/lib/Either';
-import { transactionSampleRateRt } from '../../../../../../common/runtime_types/transaction_sample_rate_rt';
+import { isRight, fold } from 'fp-ts/lib/Either';
+import * as iots from 'io-ts';
+import { DeepPartial } from 'utility-types';
+import { merge } from 'lodash';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { identity } from 'fp-ts/lib/function';
+import {
+  agentConfigurationRt,
+  AgentConfigurationPayload
+} from '../../../../../../common/runtime_types/agent_configuration_rt';
 import { ENVIRONMENT_NOT_DEFINED } from '../../../../../../common/environment_filter_values';
 import { callApmApi } from '../../../../../services/rest/callApmApi';
 import { trackEvent } from '../../../../../../../infra/public/hooks/use_track_metric';
@@ -32,7 +40,7 @@ import { Config } from '../index';
 import { SettingsSection } from './SettingsSection';
 import { ServiceSection } from './ServiceSection';
 import { DeleteSection } from './DeleteSection';
-import { transactionMaxSpansRt } from '../../../../../../common/runtime_types/transaction_max_spans_rt';
+
 const t = (id: string, defaultMessage: string, values?: Record<string, any>) =>
   i18n.translate(`xpack.apm.settings.agentConf.${id}`, {
     defaultMessage,
@@ -54,43 +62,81 @@ export function AddEditFlyout({
 }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
-  // config conditions (servie)
-  const [serviceName, setServiceName] = useState<string>(
-    selectedConfig ? selectedConfig.service.name : ''
-  );
-  const [environment, setEnvironment] = useState<string>(
-    selectedConfig
-      ? selectedConfig.service.environment || ENVIRONMENT_NOT_DEFINED
-      : ''
+  const [agentConfiguration, setAgentConfiguration] = useState<
+    DeepPartial<AgentConfigurationPayload>
+  >({});
+
+  const defaults = {
+    service: {
+      name: selectedConfig ? selectedConfig.service.name : '',
+      environment:
+        (selectedConfig && selectedConfig.service.environment) ||
+        ENVIRONMENT_NOT_DEFINED
+    },
+    settings: {
+      transaction_sample_rate: idx(
+        selectedConfig,
+        _ => _.settings.transaction_sample_rate
+      ),
+      capture_body: idx(selectedConfig, _ => _.settings.capture_body) || '',
+      transaction_max_spans: idx(
+        selectedConfig,
+        _ => _.settings.transaction_max_spans
+      )
+    }
+  };
+
+  const displayedAgentConfiguration = merge(defaults, agentConfiguration);
+
+  function set<TValue>(
+    cb: (value: TValue) => DeepPartial<AgentConfigurationPayload>
+  ) {
+    return (value: TValue) => {
+      return setAgentConfiguration(state => merge({}, state, cb(value)));
+    };
+  }
+
+  const formValidation = agentConfigurationRt.decode(
+    displayedAgentConfiguration
   );
 
-  // config settings
-  const initialSampleRate = idx(
-    selectedConfig,
-    _ => _.settings.transaction_sample_rate
-  );
-  const [sampleRate, setSampleRate] = useState<string>(
-    initialSampleRate != null ? String(initialSampleRate) : ''
-  );
-  const [captureBody, setCaptureBody] = useState<string>(
-    idx(selectedConfig, _ => _.settings.capture_body) || ''
-  );
-  const [transactionMaxSpans, setTransactionMaxSpans] = useState<string>(
-    (
-      idx(selectedConfig, _ => _.settings.transaction_max_spans) || ''
-    ).toString()
-  );
+  const isFormValid = isRight(formValidation);
 
-  const isSampleRateValid = isRight(transactionSampleRateRt.decode(sampleRate));
-  const isTransactionMaxSpansValid = isRight(
-    transactionMaxSpansRt.decode(transactionMaxSpans)
+  const isValid = pipe(
+    formValidation,
+    fold(
+      errors => {
+        const byContext = errors.reduce(
+          (acc, error) => {
+            return {
+              ...acc,
+              [error.context
+                .slice(1)
+                .map(context => context.key)
+                .join('.')]: error
+            };
+          },
+          {} as Record<string, iots.ValidationError | undefined>
+        );
+        return {
+          service: {
+            name: !byContext['service.name.0'],
+            environment: !byContext['service.environment.0']
+          },
+          settings: {
+            transaction_sample_rate: !byContext[
+              'settings.transaction_sample_rate.0'
+            ],
+            transaction_max_spans: !byContext[
+              'settings.transaction_max_spans.0'
+            ],
+            capture_body: !byContext['settings.capture_body.0']
+          }
+        };
+      },
+      () => null
+    )
   );
-  const isFormValid =
-    !!serviceName &&
-    !!environment &&
-    isSampleRateValid &&
-    !!captureBody &&
-    isTransactionMaxSpansValid;
 
   const handleSubmitEvent = async (
     event:
@@ -100,16 +146,14 @@ export function AddEditFlyout({
     event.preventDefault();
     setIsSaving(true);
 
-    if (sampleRate === '' || captureBody === '' || transactionMaxSpans === '') {
-      throw new Error('Missing arguments');
-    }
-
+    const configuration = pipe(
+      formValidation,
+      fold(() => {
+        throw new Error('Agent configuration is not valid');
+      }, identity)
+    );
     await saveConfig({
-      serviceName,
-      environment,
-      sampleRate,
-      captureBody,
-      transactionMaxSpans,
+      configuration,
       configurationId: selectedConfig ? selectedConfig.id : undefined
     });
     setIsSaving(false);
@@ -149,28 +193,28 @@ export function AddEditFlyout({
             >
               <ServiceSection
                 selectedConfig={selectedConfig}
-                environment={environment}
-                setEnvironment={setEnvironment}
-                serviceName={serviceName}
-                setServiceName={setServiceName}
+                values={{
+                  environment: displayedAgentConfiguration.service.environment,
+                  name: displayedAgentConfiguration.service.name
+                }}
+                onChange={set(({ environment, name }) => ({
+                  service: {
+                    environment,
+                    name
+                  }
+                }))}
               />
 
               <EuiSpacer />
 
               <SettingsSection
-                sampleRate={{
-                  value: sampleRate,
-                  set: setSampleRate,
-                  isValid: isSampleRateValid
-                }}
-                captureBody={{
-                  value: captureBody,
-                  set: setCaptureBody
-                }}
-                transactionMaxSpans={{
-                  value: transactionMaxSpans,
-                  set: setTransactionMaxSpans,
-                  isValid: isTransactionMaxSpansValid
+                values={displayedAgentConfiguration.settings}
+                onChange={set(settings => ({ settings }))}
+                valid={{
+                  transaction_max_spans: true,
+                  transaction_sample_rate: true,
+                  capture_body: true,
+                  ...(isValid ? isValid.settings : {})
                 }}
               />
 
@@ -210,36 +254,15 @@ export function AddEditFlyout({
 }
 
 async function saveConfig({
-  serviceName,
-  environment,
-  sampleRate,
-  captureBody,
-  transactionMaxSpans,
+  configuration,
   configurationId
 }: {
-  serviceName: string;
-  environment: string | undefined;
-  sampleRate: string;
-  captureBody: string;
-  transactionMaxSpans: string;
+  configuration: AgentConfigurationPayload;
   configurationId?: string;
 }) {
   trackEvent({ app: 'apm', name: 'save_agent_configuration' });
 
   try {
-    const configuration = {
-      service: {
-        name: serviceName,
-        environment:
-          environment === ENVIRONMENT_NOT_DEFINED ? undefined : environment
-      },
-      settings: {
-        transaction_sample_rate: Number(sampleRate),
-        capture_body: captureBody,
-        transaction_max_spans: Number(transactionMaxSpans)
-      }
-    };
-
     if (configurationId) {
       await callApmApi({
         pathname: '/api/apm/settings/agent-configuration/{configurationId}',
@@ -264,7 +287,7 @@ async function saveConfig({
       text: t(
         'saveConfig.succeeded.text',
         'The configuration for {serviceName} was saved. It will take some time to propagate to the agents.',
-        { serviceName: `"${serviceName}"` }
+        { serviceName: `"${configuration.service.name}"` }
       )
     });
   } catch (error) {
@@ -273,7 +296,10 @@ async function saveConfig({
       text: t(
         'saveConfig.failed.text',
         'Something went wrong when saving the configuration for {serviceName}. Error: {errorMessage}',
-        { serviceName: `"${serviceName}"`, errorMessage: `"${error.message}"` }
+        {
+          serviceName: `"${configuration.service.name}"`,
+          errorMessage: `"${error.message}"`
+        }
       )
     });
   }

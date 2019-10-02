@@ -13,10 +13,9 @@ import { listConfigurations } from '../lib/settings/agent_configuration/list_con
 import { getEnvironments } from '../lib/settings/agent_configuration/get_environments';
 import { deleteConfiguration } from '../lib/settings/agent_configuration/delete_configuration';
 import { createRoute } from './create_route';
-import { transactionSampleRateRt } from '../../common/runtime_types/transaction_sample_rate_rt';
-import { transactionMaxSpansRt } from '../../common/runtime_types/transaction_max_spans_rt';
 import { getAgentNameByService } from '../lib/settings/agent_configuration/get_agent_name_by_service';
 import { markAppliedByAgent } from '../lib/settings/agent_configuration/mark_applied_by_agent';
+import { agentConfigurationRt } from '../../common/runtime_types/agent_configuration_rt';
 
 // get list of configurations
 export const agentConfigurationRoute = createRoute(core => ({
@@ -58,19 +57,6 @@ export const listAgentConfigurationServicesRoute = createRoute(() => ({
   }
 }));
 
-const agentPayloadRt = t.type({
-  agent_name: t.string,
-  service: t.intersection([
-    t.type({ name: t.string }),
-    t.partial({ environments: t.array(t.string) })
-  ]),
-  settings: t.type({
-    transaction_sample_rate: transactionSampleRateRt,
-    capture_body: t.string,
-    transaction_max_spans: transactionMaxSpansRt
-  })
-});
-
 // get environments for service
 export const listAgentConfigurationEnvironmentsRoute = createRoute(() => ({
   path:
@@ -91,7 +77,7 @@ export const createAgentConfigurationRoute = createRoute(() => ({
   method: 'POST',
   path: '/api/apm/settings/agent-configuration/new',
   params: {
-    body: agentPayloadRt
+    body: agentConfigurationRt
   },
   handler: async (req, { body }) => {
     const setup = await setupRequest(req);
@@ -109,7 +95,7 @@ export const updateAgentConfigurationRoute = createRoute(() => ({
     path: t.type({
       configurationId: t.string
     }),
-    body: agentPayloadRt
+    body: agentConfigurationRt
   },
   handler: async (req, { path, body }) => {
     const setup = await setupRequest(req);
