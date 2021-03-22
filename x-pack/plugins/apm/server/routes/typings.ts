@@ -21,6 +21,8 @@ import { MlPluginSetup } from '../../../ml/server';
 import { FetchOptions } from '../../common/fetch_options';
 import { APMConfig } from '..';
 
+export type HandlerReturn = Record<string, any> | void;
+
 export interface RouteParams {
   path?: Record<string, unknown>;
   query?: Record<string, unknown>;
@@ -36,7 +38,7 @@ export type RouteParamsRT = WithoutIncompatibleMethods<t.Type<RouteParams>>;
 
 export type RouteHandler<
   TParamsRT extends RouteParamsRT | undefined,
-  TReturn
+  TReturn extends HandlerReturn
 > = (kibanaContext: {
   context: APMRequestHandlerContext<
     (TParamsRT extends RouteParamsRT ? t.TypeOf<TParamsRT> : {}) & {
@@ -58,7 +60,7 @@ interface RouteOptions {
 export interface Route<
   TEndpoint extends string,
   TRouteParamsRT extends RouteParamsRT | undefined,
-  TReturn
+  TReturn extends HandlerReturn
 > {
   endpoint: TEndpoint;
   options: RouteOptions;
@@ -97,8 +99,8 @@ export interface ServerAPI<TRouteState extends RouteState> {
   _S: TRouteState;
   add<
     TEndpoint extends string,
-    TRouteParamsRT extends RouteParamsRT | undefined = undefined,
-    TReturn = unknown
+    TReturn extends HandlerReturn,
+    TRouteParamsRT extends RouteParamsRT | undefined = undefined
   >(
     route:
       | Route<TEndpoint, TRouteParamsRT, TReturn>

@@ -11,7 +11,11 @@ import { schema } from '@kbn/config-schema';
 import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter';
 import { isLeft } from 'fp-ts/lib/Either';
-import { KibanaResponseFactory, RouteRegistrar } from 'src/core/server';
+import {
+  KibanaRequest,
+  KibanaResponseFactory,
+  RouteRegistrar,
+} from 'src/core/server';
 import { RequestAbortedError } from '@elastic/elasticsearch/lib/errors';
 import agent from 'elastic-apm-node';
 import { merge } from '../../../common/runtime_types/merge';
@@ -31,6 +35,15 @@ type RouteOrRouteFactoryFn = Parameters<ServerAPI<{}>['add']>[0];
 
 const isNotEmpty = (val: any) =>
   val !== undefined && val !== null && !(isPlainObject(val) && isEmpty(val));
+
+interface DebugQuery {
+  duration: number;
+  operationName: string;
+  params: Record<string, unknown>;
+  esError: Error;
+}
+
+export const debugQueriesMap = new WeakMap<KibanaRequest, DebugQuery[]>();
 
 export function createApi() {
   const routes: RouteOrRouteFactoryFn[] = [];
@@ -102,6 +115,9 @@ export function createApi() {
               });
             }
 
+            // init debug queries
+            debugQueriesMap.set(request, []);
+
             try {
               const paramMap = pickBy(
                 {
@@ -137,7 +153,15 @@ export function createApi() {
                 },
               });
 
-              return response.ok({ body: data as any });
+              const body = {
+                ...data,
+                _debugQueries: debugQueriesMap.get(request),
+              };
+
+              // cleanup
+              debugQueriesMap.delete(request);
+
+              return response.ok({ body });
             } catch (error) {
               if (Boom.isBoom(error)) {
                 return convertBoomToKibanaResponse(error, response);

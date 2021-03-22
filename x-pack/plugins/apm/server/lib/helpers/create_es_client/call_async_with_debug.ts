@@ -7,8 +7,10 @@
 
 /* eslint-disable no-console */
 
+import { omit } from 'lodash';
 import chalk from 'chalk';
 import { KibanaRequest } from '../../../../../../../src/core/server';
+import { debugQueriesMap } from '../../../routes/create_api';
 
 function formatObj(obj: Record<string, any>) {
   return JSON.stringify(obj, null, 2);
@@ -18,10 +20,16 @@ export async function callAsyncWithDebug<T>({
   cb,
   getDebugMessage,
   debug,
+  request,
+  operationName,
+  operationParams,
 }: {
   cb: () => Promise<T>;
   getDebugMessage: () => { body: string; title: string };
   debug: boolean;
+  request: KibanaRequest;
+  operationName: string;
+  operationParams: Record<string, any>;
 }) {
   if (!debug) {
     return cb();
@@ -41,16 +49,26 @@ export async function callAsyncWithDebug<T>({
   if (debug) {
     const highlightColor = esError ? 'bgRed' : 'inverse';
     const diff = process.hrtime(startTime);
-    const duration = `${Math.round(diff[0] * 1000 + diff[1] / 1e6)}ms`;
+    const duration = Math.round(diff[0] * 1000 + diff[1] / 1e6); // duration in ms
 
     const { title, body } = getDebugMessage();
 
     console.log(
-      chalk.bold[highlightColor](`=== Debug: ${title} (${duration}) ===`)
+      chalk.bold[highlightColor](`=== Debug: ${title} (${duration}ms) ===`)
     );
 
     console.log(body);
     console.log(`\n`);
+
+    const debugQueries = debugQueriesMap.get(request);
+    if (debugQueries) {
+      debugQueries.push({
+        duration,
+        operationName,
+        params: omit(operationParams, 'headers'),
+        esError: esError?.response ?? esError?.message,
+      });
+    }
   }
 
   if (esError) {

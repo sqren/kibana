@@ -50,6 +50,9 @@ export function createInternalESClient({
         body: getDebugBody(params, operationName),
       }),
       debug: context.params.query._debug,
+      request,
+      operationName,
+      operationParams: params,
     });
   }
 
