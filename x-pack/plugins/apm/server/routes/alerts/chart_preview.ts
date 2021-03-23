@@ -37,10 +37,12 @@ export const transactionErrorRateChartPreview = createRoute({
     const setup = await setupRequest(context, request);
     const { _debug, ...alertParams } = context.params.query;
 
-    return getTransactionErrorRateChartPreview({
+    const errorRateChartPreview = await getTransactionErrorRateChartPreview({
       setup,
       alertParams,
     });
+
+    return { errorRateChartPreview };
   },
 });
 
@@ -51,10 +53,12 @@ export const transactionErrorCountChartPreview = createRoute({
   handler: async ({ context, request }) => {
     const setup = await setupRequest(context, request);
     const { _debug, ...alertParams } = context.params.query;
-    return getTransactionErrorCountChartPreview({
+    const errorCountChartPreview = await getTransactionErrorCountChartPreview({
       setup,
       alertParams,
     });
+
+    return { errorCountChartPreview };
   },
 });
 
@@ -66,9 +70,11 @@ export const transactionDurationChartPreview = createRoute({
     const setup = await setupRequest(context, request);
     const { _debug, ...alertParams } = context.params.query;
 
-    return getTransactionDurationChartPreview({
+    const latencyChartPreview = await getTransactionDurationChartPreview({
       alertParams,
       setup,
     });
+
+    return { latencyChartPreview };
   },
 });

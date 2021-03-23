@@ -33,6 +33,9 @@ interface Props {
   onCreateJobSuccess: () => void;
   onCancel: () => void;
 }
+
+const INITIAL_DATA = { environments: [] };
+
 export function AddEnvironments({
   currentEnvironments,
   onCreateJobSuccess,
@@ -42,7 +45,7 @@ export function AddEnvironments({
   const { anomalyDetectionJobsRefetch } = useAnomalyDetectionJobsContext();
   const canCreateJob = !!application.capabilities.ml.canCreateJob;
   const { toasts } = notifications;
-  const { data = [], status } = useFetcher(
+  const { data = INITIAL_DATA, status } = useFetcher(
     (callApmApi) =>
       callApmApi({
         endpoint: `GET /api/apm/settings/anomaly-detection/environments`,
@@ -51,7 +54,7 @@ export function AddEnvironments({
     { preservePreviousData: false }
   );
 
-  const environmentOptions = data.map((env) => ({
+  const environmentOptions = data.environments.map((env) => ({
     label: getEnvironmentLabel(env),
     value: env,
     disabled: currentEnvironments.includes(env),

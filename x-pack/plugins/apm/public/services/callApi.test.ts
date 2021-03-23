@@ -7,7 +7,6 @@
 
 import { mockNow } from '../utils/testHelpers';
 import { clearCache, callApi } from './rest/callApi';
-import { SessionStorageMock } from './__mocks__/SessionStorageMock';
 import { CoreStart, HttpSetup } from 'kibana/public';
 
 type CoreMock = CoreStart & {
@@ -26,10 +25,10 @@ describe('callApi', () => {
           my_key: 'hello_world',
         }),
       },
+      uiSettings: {
+        get: () => false,
+      },
     } as unknown) as CoreMock;
-
-    // @ts-expect-error
-    global.sessionStorage = new SessionStorageMock();
   });
 
   afterEach(() => {
@@ -39,7 +38,8 @@ describe('callApi', () => {
 
   describe('apm_debug', () => {
     beforeEach(() => {
-      sessionStorage.setItem('apm_debug', 'true');
+      // @ts-expect-error
+      core.uiSettings.get = () => true;
     });
 
     it('should add debug param for APM endpoints', async () => {

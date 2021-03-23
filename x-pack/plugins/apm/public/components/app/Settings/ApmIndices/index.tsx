@@ -85,7 +85,7 @@ async function saveApmIndices({
 }
 
 // avoid infinite loop by initializing the state outside the component
-const INITIAL_STATE = [] as [];
+const INITIAL_STATE = { apmIndexSettings: [] };
 
 export function ApmIndices() {
   const { core } = useApmPluginContext();
@@ -108,7 +108,7 @@ export function ApmIndices() {
 
   useEffect(() => {
     setApmIndices(
-      data.reduce(
+      data.apmIndexSettings.reduce(
         (acc, { configurationName, savedValue }) => ({
           ...acc,
           [configurationName]: savedValue,
@@ -190,7 +190,7 @@ export function ApmIndices() {
           <EuiFlexItem grow={false}>
             <EuiForm>
               {APM_INDEX_LABELS.map(({ configurationName, label }) => {
-                const matchedConfiguration = data.find(
+                const matchedConfiguration = data.apmIndexSettings.find(
                   ({ configurationName: configName }) =>
                     configName === configurationName
                 );

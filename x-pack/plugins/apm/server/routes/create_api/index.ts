@@ -11,11 +11,7 @@ import { schema } from '@kbn/config-schema';
 import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter';
 import { isLeft } from 'fp-ts/lib/Either';
-import {
-  KibanaRequest,
-  KibanaResponseFactory,
-  RouteRegistrar,
-} from 'src/core/server';
+import { KibanaRequest, RouteRegistrar } from 'src/core/server';
 import { RequestAbortedError } from '@elastic/elasticsearch/lib/errors';
 import agent from 'elastic-apm-node';
 import { merge } from '../../../common/runtime_types/merge';
@@ -44,7 +40,10 @@ interface DebugQuery {
   esError: Error;
 }
 
-export const debugQueriesMap = new WeakMap<KibanaRequest, DebugQuery[]>();
+export const inspectableEsQueriesMap = new WeakMap<
+  KibanaRequest,
+  DebugQuery[]
+>();
 
 export function createApi() {
   const routes: RouteOrRouteFactoryFn[] = [];
@@ -117,7 +116,7 @@ export function createApi() {
             }
 
             // init debug queries
-            debugQueriesMap.set(request, []);
+            inspectableEsQueriesMap.set(request, []);
 
             try {
               const paramMap = pickBy(
@@ -156,27 +155,34 @@ export function createApi() {
 
               const body = {
                 ...data,
-                _debugQueries: debugQueriesMap.get(request),
+                _inspectableEsQueries: inspectableEsQueriesMap.get(request),
               };
 
               // cleanup
-              debugQueriesMap.delete(request);
+              inspectableEsQueriesMap.delete(request);
 
               return response.ok({ body });
             } catch (error) {
+              const opts = {
+                statusCode: 500,
+                body: {
+                  message: error.message,
+                  attributes: {
+                    _inspectableEsQueries: inspectableEsQueriesMap.get(request),
+                  },
+                },
+              };
+
               if (Boom.isBoom(error)) {
-                return convertBoomToKibanaResponse(error, response);
+                opts.statusCode = error.output.statusCode;
               }
 
               if (error instanceof RequestAbortedError) {
-                return response.custom({
-                  statusCode: 499,
-                  body: {
-                    message: 'Client closed request',
-                  },
-                });
+                opts.statusCode = 499;
+                opts.body.message = 'Client closed request';
               }
-              throw error;
+
+              return response.custom(opts);
             }
           }
         );
@@ -185,24 +191,4 @@ export function createApi() {
   };
 
   return api;
-}
-
-function convertBoomToKibanaResponse(
-  error: Boom.Boom,
-  response: KibanaResponseFactory
-) {
-  const opts = { body: { message: error.message } };
-  switch (error.output.statusCode) {
-    case 404:
-      return response.notFound(opts);
-
-    case 400:
-      return response.badRequest(opts);
-
-    case 403:
-      return response.forbidden(opts);
-
-    default:
-      throw error;
-  }
 }

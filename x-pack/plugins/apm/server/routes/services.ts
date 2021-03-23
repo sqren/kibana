@@ -55,15 +55,13 @@ export const servicesRoute = createRoute({
       setup
     );
 
-    const services = await getServices({
+    return getServices({
       environment,
       kuery,
       setup,
       searchAggregatedTransactions,
       logger: context.logger,
     });
-
-    return services;
   },
 });
 

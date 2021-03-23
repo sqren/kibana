@@ -109,6 +109,7 @@ export function createApmEventClient({
           body: getDebugBody(searchParams, operationName),
           title: getDebugTitle(request),
         }),
+        isCalledWithInternalUser: false,
         debug,
         request,
         operationName,

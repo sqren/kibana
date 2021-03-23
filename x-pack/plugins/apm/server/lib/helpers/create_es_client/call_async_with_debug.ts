@@ -10,7 +10,7 @@
 import { omit } from 'lodash';
 import chalk from 'chalk';
 import { KibanaRequest } from '../../../../../../../src/core/server';
-import { debugQueriesMap } from '../../../routes/create_api';
+import { inspectableEsQueriesMap } from '../../../routes/create_api';
 
 function formatObj(obj: Record<string, any>) {
   return JSON.stringify(obj, null, 2);
@@ -23,6 +23,7 @@ export async function callAsyncWithDebug<T>({
   request,
   operationName,
   operationParams,
+  isCalledWithInternalUser,
 }: {
   cb: () => Promise<T>;
   getDebugMessage: () => { body: string; title: string };
@@ -30,6 +31,7 @@ export async function callAsyncWithDebug<T>({
   request: KibanaRequest;
   operationName: string;
   operationParams: Record<string, any>;
+  isCalledWithInternalUser: boolean; // only allow inspection of queries that were retrieved with credentials of the end user
 }) {
   if (!debug) {
     return cb();
@@ -60,9 +62,9 @@ export async function callAsyncWithDebug<T>({
     console.log(body);
     console.log(`\n`);
 
-    const debugQueries = debugQueriesMap.get(request);
-    if (debugQueries) {
-      debugQueries.push({
+    const inspectableEsQueries = inspectableEsQueriesMap.get(request);
+    if (!isCalledWithInternalUser && inspectableEsQueries) {
+      inspectableEsQueries.push({
         response: res,
         duration,
         operationName,

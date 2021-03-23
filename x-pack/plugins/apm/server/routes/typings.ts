@@ -21,7 +21,7 @@ import { MlPluginSetup } from '../../../ml/server';
 import { FetchOptions } from '../../common/fetch_options';
 import { APMConfig } from '..';
 
-export type HandlerReturn = { [x: string]: any } | null | void;
+export type HandlerReturn = Record<string, any> | null | void | undefined;
 
 export interface RouteParams {
   path?: Record<string, unknown>;
@@ -46,7 +46,7 @@ export type RouteHandler<
     }
   >;
   request: KibanaRequest;
-}) => Promise<TReturn>;
+}) => Promise<TReturn extends any[] ? never : TReturn>;
 
 interface RouteOptions {
   tags: Array<

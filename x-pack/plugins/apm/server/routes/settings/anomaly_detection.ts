@@ -85,10 +85,12 @@ export const anomalyDetectionEnvironmentsRoute = createRoute({
       setup
     );
 
-    return await getAllEnvironments({
+    const environments = await getAllEnvironments({
       setup,
       searchAggregatedTransactions,
       includeMissing: true,
     });
+
+    return { environments };
   },
 });

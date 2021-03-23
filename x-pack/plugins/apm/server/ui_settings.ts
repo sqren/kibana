@@ -40,7 +40,7 @@ export const uiSettings: Record<string, UiSettingsParams<boolean>> = {
     description: i18n.translate(
       'xpack.apm.enableDebugQueriesExperimentDescription',
       {
-        defaultMessage: 'Enable debug queries in API responses.',
+        defaultMessage: 'Inspect Elasticsearch queries in API responses.',
       }
     ),
     schema: schema.boolean(),

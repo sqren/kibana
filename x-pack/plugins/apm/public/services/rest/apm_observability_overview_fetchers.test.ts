@@ -35,7 +35,7 @@ describe('Observability dashboard data', () => {
       expect(response).toBeFalsy();
     });
     it('returns true when data is available', async () => {
-      callApmApiMock.mockImplementation(() => Promise.resolve(true));
+      callApmApiMock.mockResolvedValue({ hasData: true });
       const response = await getHasData();
       expect(response).toBeTruthy();
     });
