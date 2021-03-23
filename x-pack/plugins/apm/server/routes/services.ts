@@ -467,7 +467,7 @@ export const serviceInstancesRoute = createRoute({
       setup
     );
 
-    return getServiceInstances({
+    const serviceInstances = await getServiceInstances({
       environment,
       kuery,
       latencyAggregationType,
@@ -477,6 +477,8 @@ export const serviceInstancesRoute = createRoute({
       searchAggregatedTransactions,
       numBuckets,
     });
+
+    return { serviceInstances };
   },
 });
 
@@ -503,12 +505,14 @@ export const serviceDependenciesRoute = createRoute({
     const { serviceName } = context.params.path;
     const { environment, numBuckets } = context.params.query;
 
-    return getServiceDependencies({
+    const dependencies = await getServiceDependencies({
       serviceName,
       environment,
       setup,
       numBuckets,
     });
+
+    return { dependencies };
   },
 });
 
@@ -531,12 +535,14 @@ export const serviceProfilingTimelineRoute = createRoute({
       query: { environment, kuery },
     } = context.params;
 
-    return getServiceProfilingTimeline({
+    const profilingTimeline = await getServiceProfilingTimeline({
       kuery,
       setup,
       serviceName,
       environment,
     });
+
+    return { profilingTimeline };
   },
 });
 

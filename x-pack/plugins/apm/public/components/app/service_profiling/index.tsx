@@ -28,6 +28,8 @@ interface ServiceProfilingProps {
   environment?: string;
 }
 
+const DEFAULT_DATA = { profilingTimeline: [] };
+
 export function ServiceProfiling({
   serviceName,
   environment,
@@ -36,7 +38,7 @@ export function ServiceProfiling({
     urlParams: { kuery, start, end },
   } = useUrlParams();
 
-  const { data = [] } = useFetcher(
+  const { data = DEFAULT_DATA } = useFetcher(
     (callApmApi) => {
       if (!start || !end) {
         return;
@@ -58,14 +60,16 @@ export function ServiceProfiling({
     [kuery, start, end, serviceName, environment]
   );
 
+  const { profilingTimeline } = data;
+
   const [valueType, setValueType] = useState<ProfilingValueType | undefined>();
 
   useEffect(() => {
-    if (!data.length) {
+    if (!profilingTimeline.length) {
       return;
     }
 
-    const availableValueTypes = data.reduce((set, point) => {
+    const availableValueTypes = profilingTimeline.reduce((set, point) => {
       (Object.keys(point.valueTypes).filter(
         (type) => type !== 'unknown'
       ) as ProfilingValueType[])
@@ -80,7 +84,7 @@ export function ServiceProfiling({
     if (!valueType || !availableValueTypes.has(valueType)) {
       setValueType(Array.from(availableValueTypes)[0]);
     }
-  }, [data, valueType]);
+  }, [profilingTimeline, valueType]);
 
   return (
     <>
@@ -103,7 +107,7 @@ export function ServiceProfiling({
                   <ServiceProfilingTimeline
                     start={start!}
                     end={end!}
-                    series={data}
+                    series={profilingTimeline}
                     onValueTypeSelect={(type) => {
                       setValueType(type);
                     }}

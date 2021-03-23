@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { HttpSetup } from 'kibana/public';
+import { CoreSetup, CoreStart } from 'kibana/public';
 import { FetchOptions } from '../../../common/fetch_options';
 import { callApi } from './callApi';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
@@ -35,10 +35,9 @@ export let callApmApi: APMClient = () => {
   );
 };
 
-export function createCallApmApi(http: HttpSetup) {
+export function createCallApmApi(core: CoreStart | CoreSetup) {
   callApmApi = ((options: APMClientOptions) => {
     const { endpoint, params = {}, ...opts } = options;
-
     const path = (params.path || {}) as Record<string, any>;
     const [method, pathname] = endpoint.split(' ');
 
@@ -46,7 +45,7 @@ export function createCallApmApi(http: HttpSetup) {
       return acc.replace(`{${paramName}}`, path[paramName]);
     }, pathname);
 
-    return callApi(http, {
+    return callApi(core, {
       ...opts,
       method,
       pathname: formattedPathname,

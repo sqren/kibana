@@ -5,16 +5,19 @@
  * 2.0.
  */
 
-import { HttpSetup } from 'kibana/public';
+import { CoreSetup, CoreStart } from 'kibana/public';
 import { isString, startsWith } from 'lodash';
 import LRU from 'lru-cache';
 import hash from 'object-hash';
+import { enableDebugQueries } from '../../../common/ui_settings_keys';
 import { FetchOptions } from '../../../common/fetch_options';
 
-function fetchOptionsWithDebug(fetchOptions: FetchOptions) {
+function fetchOptionsWithDebug(
+  fetchOptions: FetchOptions,
+  debugQueriesEnabled: boolean
+) {
   const debugEnabled =
-    sessionStorage.getItem('apm_debug') === 'true' &&
-    startsWith(fetchOptions.pathname, '/api/apm');
+    debugQueriesEnabled && startsWith(fetchOptions.pathname, '/api/apm');
 
   const { body, ...rest } = fetchOptions;
 
@@ -37,9 +40,10 @@ export function clearCache() {
 export type CallApi = typeof callApi;
 
 export async function callApi<T = void>(
-  http: HttpSetup,
+  { http, uiSettings }: CoreStart | CoreSetup,
   fetchOptions: FetchOptions
 ): Promise<T> {
+  const debugQueriesEnabled: boolean = uiSettings.get(enableDebugQueries);
   const cacheKey = getCacheKey(fetchOptions);
   const cacheResponse = cache.get(cacheKey);
   if (cacheResponse) {
@@ -47,7 +51,8 @@ export async function callApi<T = void>(
   }
 
   const { pathname, method = 'get', ...options } = fetchOptionsWithDebug(
-    fetchOptions
+    fetchOptions,
+    debugQueriesEnabled
   );
 
   const lowercaseMethod = method.toLowerCase() as

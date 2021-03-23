@@ -37,6 +37,7 @@ const isNotEmpty = (val: any) =>
   val !== undefined && val !== null && !(isPlainObject(val) && isEmpty(val));
 
 interface DebugQuery {
+  response: any;
   duration: number;
   operationName: string;
   params: Record<string, unknown>;

@@ -29,7 +29,7 @@ import { getResponseTimeTickFormatter } from '../transaction_charts/helper';
 
 interface InstancesLatencyDistributionChartProps {
   height: number;
-  items?: APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances'>;
+  items?: APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances'>['serviceInstances'];
   status: FETCH_STATUS;
 }
 

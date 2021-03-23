@@ -37,7 +37,7 @@ import { getLatencyColumnLabel } from '../get_latency_column_label';
 import { ServiceOverviewTableContainer } from '../service_overview_table_container';
 
 type ServiceInstanceItem = ValuesType<
-  APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances'>
+  APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances'>['serviceInstances']
 >;
 
 interface Props {

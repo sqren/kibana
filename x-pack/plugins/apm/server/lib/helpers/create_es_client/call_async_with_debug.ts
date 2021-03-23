@@ -63,6 +63,7 @@ export async function callAsyncWithDebug<T>({
     const debugQueries = debugQueriesMap.get(request);
     if (debugQueries) {
       debugQueries.push({
+        response: res,
         duration,
         operationName,
         params: omit(operationParams, 'headers'),

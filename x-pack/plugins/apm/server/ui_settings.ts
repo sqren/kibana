@@ -8,7 +8,10 @@
 import { schema } from '@kbn/config-schema';
 import { i18n } from '@kbn/i18n';
 import { UiSettingsParams } from '../../../../src/core/types';
-import { enableServiceOverview } from '../common/ui_settings_keys';
+import {
+  enableServiceOverview,
+  enableDebugQueries,
+} from '../common/ui_settings_keys';
 
 /**
  * uiSettings definitions for APM.
@@ -24,6 +27,20 @@ export const uiSettings: Record<string, UiSettingsParams<boolean>> = {
       'xpack.apm.enableServiceOverviewExperimentDescription',
       {
         defaultMessage: 'Enable the Overview tab for services in APM.',
+      }
+    ),
+    schema: schema.boolean(),
+  },
+  [enableDebugQueries]: {
+    category: ['observability'],
+    name: i18n.translate('xpack.apm.enableDebugQueriesExperimentName', {
+      defaultMessage: 'APM debug queries',
+    }),
+    value: false,
+    description: i18n.translate(
+      'xpack.apm.enableDebugQueriesExperimentDescription',
+      {
+        defaultMessage: 'Enable debug queries in API responses.',
       }
     ),
     schema: schema.boolean(),

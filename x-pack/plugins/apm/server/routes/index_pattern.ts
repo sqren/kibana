@@ -41,6 +41,8 @@ export const apmIndexPatternTitleRoute = createRoute({
   endpoint: 'GET /api/apm/index_pattern/title',
   options: { tags: ['access:apm'] },
   handler: async ({ context }) => {
-    return getApmIndexPatternTitle(context);
+    return {
+      indexPatternTitle: getApmIndexPatternTitle(context),
+    };
   },
 });

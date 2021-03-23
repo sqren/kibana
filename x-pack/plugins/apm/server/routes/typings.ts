@@ -21,7 +21,7 @@ import { MlPluginSetup } from '../../../ml/server';
 import { FetchOptions } from '../../common/fetch_options';
 import { APMConfig } from '..';
 
-export type HandlerReturn = Record<string, any> | void;
+export type HandlerReturn = { [x: string]: any } | null | void;
 
 export interface RouteParams {
   path?: Record<string, unknown>;

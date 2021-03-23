@@ -24,6 +24,8 @@ interface ServiceOverviewInstancesChartAndTableProps {
   serviceName: string;
 }
 
+const DEFAULT_DATA = { serviceInstances: [] };
+
 export function ServiceOverviewInstancesChartAndTable({
   chartHeight,
   serviceName,
@@ -34,7 +36,7 @@ export function ServiceOverviewInstancesChartAndTable({
     urlParams: { environment, kuery, latencyAggregationType, start, end },
   } = useUrlParams();
 
-  const { data = [], status } = useFetcher(
+  const { data = DEFAULT_DATA, status } = useFetcher(
     (callApmApi) => {
       if (!start || !end || !transactionType || !latencyAggregationType) {
         return;
@@ -82,7 +84,7 @@ export function ServiceOverviewInstancesChartAndTable({
       <EuiFlexItem grow={7}>
         <EuiPanel>
           <ServiceOverviewInstancesTable
-            items={data}
+            items={data.serviceInstances}
             serviceName={serviceName}
             status={status}
           />
