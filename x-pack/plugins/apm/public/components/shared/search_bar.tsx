@@ -56,7 +56,7 @@ function DebugQueryCallout() {
             'xpack.apm.searchBar.inspectEsQueriesEnabled.callout.title',
             {
               defaultMessage:
-                'Inspectable ES queries are enabled (`apm:enableInspectEsQueries`)',
+                'Inspectable ES queries (`apm:enableInspectEsQueries`)',
             }
           )}
           iconType="beaker"
