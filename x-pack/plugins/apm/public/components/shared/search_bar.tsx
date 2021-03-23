@@ -55,10 +55,11 @@ function DebugQueryCallout() {
           title={i18n.translate(
             'xpack.apm.searchBar.inspectEsQueriesEnabled.callout.title',
             {
-              defaultMessage: 'APM debug mode is enabled',
+              defaultMessage:
+                'Inspectable ES queries are enabled (`apm:enableInspectEsQueries`)',
             }
           )}
-          iconType="alert"
+          iconType="beaker"
           color="warning"
         >
           <FormattedMessage
