@@ -6,4 +6,3 @@
  */
 
 export const enableServiceOverview = 'apm:enableServiceOverview';
-export const enableDebugQueries = 'apm:enableDebugQueries';

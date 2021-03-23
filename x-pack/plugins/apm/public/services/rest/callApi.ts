@@ -9,15 +9,16 @@ import { CoreSetup, CoreStart } from 'kibana/public';
 import { isString, startsWith } from 'lodash';
 import LRU from 'lru-cache';
 import hash from 'object-hash';
-import { enableDebugQueries } from '../../../common/ui_settings_keys';
+import { enableInspectEsQueries } from '../../../../observability/common/ui_settings_keys';
 import { FetchOptions } from '../../../common/fetch_options';
 
 function fetchOptionsWithDebug(
   fetchOptions: FetchOptions,
-  debugQueriesEnabled: boolean
+  inspectableEsQueriesEnabled: boolean
 ) {
   const debugEnabled =
-    debugQueriesEnabled && startsWith(fetchOptions.pathname, '/api/apm');
+    inspectableEsQueriesEnabled &&
+    startsWith(fetchOptions.pathname, '/api/apm');
 
   const { body, ...rest } = fetchOptions;
 
@@ -43,7 +44,9 @@ export async function callApi<T = void>(
   { http, uiSettings }: CoreStart | CoreSetup,
   fetchOptions: FetchOptions
 ): Promise<T> {
-  const debugQueriesEnabled: boolean = uiSettings.get(enableDebugQueries);
+  const inspectableEsQueriesEnabled: boolean = uiSettings.get(
+    enableInspectEsQueries
+  );
   const cacheKey = getCacheKey(fetchOptions);
   const cacheResponse = cache.get(cacheKey);
   if (cacheResponse) {
@@ -52,7 +55,7 @@ export async function callApi<T = void>(
 
   const { pathname, method = 'get', ...options } = fetchOptionsWithDebug(
     fetchOptions,
-    debugQueriesEnabled
+    inspectableEsQueriesEnabled
   );
 
   const lowercaseMethod = method.toLowerCase() as

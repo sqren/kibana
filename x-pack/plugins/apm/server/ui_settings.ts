@@ -7,11 +7,9 @@
 
 import { schema } from '@kbn/config-schema';
 import { i18n } from '@kbn/i18n';
+import { enableInspectEsQueries } from '../../observability/common/ui_settings_keys';
 import { UiSettingsParams } from '../../../../src/core/types';
-import {
-  enableServiceOverview,
-  enableDebugQueries,
-} from '../common/ui_settings_keys';
+import { enableServiceOverview } from '../common/ui_settings_keys';
 
 /**
  * uiSettings definitions for APM.
@@ -31,10 +29,10 @@ export const uiSettings: Record<string, UiSettingsParams<boolean>> = {
     ),
     schema: schema.boolean(),
   },
-  [enableDebugQueries]: {
+  [enableInspectEsQueries]: {
     category: ['observability'],
     name: i18n.translate('xpack.apm.enableDebugQueriesExperimentName', {
-      defaultMessage: 'APM debug queries',
+      defaultMessage: 'inspect ES queries',
     }),
     value: false,
     description: i18n.translate(
