@@ -31,11 +31,11 @@ export const uiSettings: Record<string, UiSettingsParams<boolean>> = {
   },
   [enableInspectEsQueries]: {
     category: ['observability'],
-    name: i18n.translate('xpack.apm.enableDebugQueriesExperimentName', {
+    name: i18n.translate('xpack.observability.enableInspectEsQueriesExperimentName', {
       defaultMessage: 'inspect ES queries',
     }),
     value: false,
-    description: i18n.translate('xpack.apm.enableDebugQueriesExperimentDescription', {
+    description: i18n.translate('xpack.observability.enableInspectEsQueriesExperimentDescription', {
       defaultMessage: 'Inspect Elasticsearch queries in API responses.',
     }),
     schema: schema.boolean(),
