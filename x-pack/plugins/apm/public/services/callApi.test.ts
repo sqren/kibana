@@ -25,9 +25,7 @@ describe('callApi', () => {
           my_key: 'hello_world',
         }),
       },
-      uiSettings: {
-        get: () => false,
-      },
+      uiSettings: { get: () => false }, // disable `observability:enableInspectEsQueries` setting
     } as unknown) as CoreMock;
   });
 
@@ -36,10 +34,10 @@ describe('callApi', () => {
     clearCache();
   });
 
-  describe('apm_debug', () => {
+  describe('_inspect', () => {
     beforeEach(() => {
       // @ts-expect-error
-      core.uiSettings.get = () => true;
+      core.uiSettings.get = () => true; // enable `observability:enableInspectEsQueries` setting
     });
 
     it('should add debug param for APM endpoints', async () => {
