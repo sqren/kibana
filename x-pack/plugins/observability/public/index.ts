@@ -8,6 +8,7 @@
 import { PluginInitializerContext, PluginInitializer } from 'kibana/public';
 import { Plugin, ObservabilityPluginSetup, ObservabilityPluginStart } from './plugin';
 export type { ObservabilityPluginSetup, ObservabilityPluginStart };
+export { enableInspectEsQueries } from '../common/ui_settings_keys';
 
 export const plugin: PluginInitializer<ObservabilityPluginSetup, ObservabilityPluginStart> = (
   context: PluginInitializerContext

@@ -11,7 +11,7 @@ import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
 import { EuiCallOut } from '@elastic/eui';
 import { EuiLink } from '@elastic/eui';
-import { enableInspectEsQueries } from '../../../../observability/common/ui_settings_keys';
+import { enableInspectEsQueries } from '../../../../observability/public';
 import { euiStyled } from '../../../../../../src/plugins/kibana_react/common';
 import { px, unit } from '../../style/variables';
 import { DatePicker } from './DatePicker';

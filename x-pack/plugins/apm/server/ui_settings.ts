@@ -7,7 +7,6 @@
 
 import { schema } from '@kbn/config-schema';
 import { i18n } from '@kbn/i18n';
-import { enableInspectEsQueries } from '../../observability/common/ui_settings_keys';
 import { UiSettingsParams } from '../../../../src/core/types';
 import { enableServiceOverview } from '../common/ui_settings_keys';
 
@@ -25,20 +24,6 @@ export const uiSettings: Record<string, UiSettingsParams<boolean>> = {
       'xpack.apm.enableServiceOverviewExperimentDescription',
       {
         defaultMessage: 'Enable the Overview tab for services in APM.',
-      }
-    ),
-    schema: schema.boolean(),
-  },
-  [enableInspectEsQueries]: {
-    category: ['observability'],
-    name: i18n.translate('xpack.apm.enableDebugQueriesExperimentName', {
-      defaultMessage: 'inspect ES queries',
-    }),
-    value: false,
-    description: i18n.translate(
-      'xpack.apm.enableDebugQueriesExperimentDescription',
-      {
-        defaultMessage: 'Inspect Elasticsearch queries in API responses.',
       }
     ),
     schema: schema.boolean(),
