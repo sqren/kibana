@@ -99,7 +99,7 @@ describe('createApi', () => {
       .add(() => ({
         endpoint: 'GET /foo',
         options: { tags: ['access:apm'] },
-        handler: async () => null,
+        handler: async () => ({}),
       }))
       .add(() => ({
         endpoint: 'POST /bar',
@@ -107,21 +107,21 @@ describe('createApi', () => {
           body: t.string,
         }),
         options: { tags: ['access:apm'] },
-        handler: async () => null,
+        handler: async () => ({}),
       }))
       .add(() => ({
         endpoint: 'PUT /baz',
         options: {
           tags: ['access:apm', 'access:apm_write'],
         },
-        handler: async () => null,
+        handler: async () => ({}),
       }))
       .add({
         endpoint: 'GET /qux',
         options: {
           tags: ['access:apm', 'access:apm_write'],
         },
-        handler: async () => null,
+        handler: async () => ({}),
       })
       .init(mock, context);
 

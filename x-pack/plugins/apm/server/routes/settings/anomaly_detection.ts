@@ -71,6 +71,8 @@ export const createAnomalyDetectionJobsRoute = createRoute({
       licensingPlugin: context.licensing,
       featureName: 'ml',
     });
+
+    return { jobCreated: true };
   },
 });
 
