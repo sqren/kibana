@@ -46,7 +46,7 @@ describe('callApi', () => {
       await callApi(core, { pathname: `/api/apm/status/server` });
 
       expect(core.http.get).toHaveBeenCalledWith('/api/apm/status/server', {
-        query: { _debug: true },
+        query: { _inspect: true },
       });
     });
 

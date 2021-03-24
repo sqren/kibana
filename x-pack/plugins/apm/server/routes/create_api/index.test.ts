@@ -161,10 +161,10 @@ describe('createApi', () => {
       return { simulate, handlerMock, createRouter, get, post, responseMock };
     };
 
-    it('adds a _debug query parameter by default', async () => {
+    it('adds a _inspect query parameter by default', async () => {
       const { simulate, handlerMock, responseMock } = initApi();
 
-      await simulate({ query: { _debug: 'true' } });
+      await simulate({ query: { _inspect: 'true' } });
 
       expect(responseMock.badRequest).not.toHaveBeenCalled();
 
@@ -176,13 +176,13 @@ describe('createApi', () => {
 
       expect(params).toEqual({
         query: {
-          _debug: true,
+          _inspect: true,
         },
       });
 
       await simulate({
         query: {
-          _debug: 1,
+          _inspect: 1,
         },
       });
 
@@ -194,7 +194,7 @@ describe('createApi', () => {
 
       await simulate({
         query: {
-          _debug: true,
+          _inspect: true,
           extra: '',
         },
       });
@@ -243,7 +243,7 @@ describe('createApi', () => {
           foo: 'bar',
         },
         query: {
-          _debug: false,
+          _inspect: false,
         },
       });
 
@@ -293,7 +293,7 @@ describe('createApi', () => {
       expect(params).toEqual({
         body: '',
         query: {
-          _debug: false,
+          _inspect: false,
         },
       });
 
@@ -317,7 +317,7 @@ describe('createApi', () => {
       await simulate({
         query: {
           bar: '',
-          _debug: 'true',
+          _inspect: 'true',
           filterNames: JSON.stringify(['hostName', 'agentName']),
         },
       });
@@ -331,7 +331,7 @@ describe('createApi', () => {
       expect(params).toEqual({
         query: {
           bar: '',
-          _debug: true,
+          _inspect: true,
           filterNames: ['hostName', 'agentName'],
         },
       });

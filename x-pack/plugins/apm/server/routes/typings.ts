@@ -42,7 +42,7 @@ export type RouteHandler<
 > = (kibanaContext: {
   context: APMRequestHandlerContext<
     (TParamsRT extends RouteParamsRT ? t.TypeOf<TParamsRT> : {}) & {
-      query: { _debug: boolean };
+      query: { _inspect: boolean };
     }
   >;
   request: KibanaRequest;
@@ -78,7 +78,7 @@ export interface ApmPluginRequestHandlerContext extends RequestHandlerContext {
 export type APMRequestHandlerContext<
   TRouteParams = {}
 > = ApmPluginRequestHandlerContext & {
-  params: TRouteParams & { query: { _debug: boolean } };
+  params: TRouteParams & { query: { _inspect: boolean } };
   config: APMConfig;
   logger: Logger;
   plugins: {

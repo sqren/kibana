@@ -49,7 +49,7 @@ export function createInternalESClient({
         title: getDebugTitle(request),
         body: getDebugBody(params, operationName),
       }),
-      debug: context.params.query._debug,
+      debug: context.params.query._inspect,
       isCalledWithInternalUser: true,
       request,
       operationName,

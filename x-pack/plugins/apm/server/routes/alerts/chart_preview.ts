@@ -35,7 +35,7 @@ export const transactionErrorRateChartPreview = createRoute({
   options: { tags: ['access:apm'] },
   handler: async ({ context, request }) => {
     const setup = await setupRequest(context, request);
-    const { _debug, ...alertParams } = context.params.query;
+    const { _inspect, ...alertParams } = context.params.query;
 
     const errorRateChartPreview = await getTransactionErrorRateChartPreview({
       setup,
@@ -52,7 +52,7 @@ export const transactionErrorCountChartPreview = createRoute({
   options: { tags: ['access:apm'] },
   handler: async ({ context, request }) => {
     const setup = await setupRequest(context, request);
-    const { _debug, ...alertParams } = context.params.query;
+    const { _inspect, ...alertParams } = context.params.query;
     const errorCountChartPreview = await getTransactionErrorCountChartPreview({
       setup,
       alertParams,
@@ -68,7 +68,7 @@ export const transactionDurationChartPreview = createRoute({
   options: { tags: ['access:apm'] },
   handler: async ({ context, request }) => {
     const setup = await setupRequest(context, request);
-    const { _debug, ...alertParams } = context.params.query;
+    const { _inspect, ...alertParams } = context.params.query;
 
     const latencyChartPreview = await getTransactionDurationChartPreview({
       alertParams,

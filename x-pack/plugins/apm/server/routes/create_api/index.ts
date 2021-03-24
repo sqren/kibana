@@ -23,7 +23,7 @@ import type { ApmPluginRequestHandlerContext } from '../typings';
 
 const debugRt = t.exact(
   t.partial({
-    query: t.exact(t.partial({ _debug: jsonRt.pipe(t.boolean) })),
+    query: t.exact(t.partial({ _inspect: jsonRt.pipe(t.boolean) })),
   })
 );
 
@@ -124,7 +124,7 @@ export function createApi() {
                   path: request.params,
                   body: request.body,
                   query: {
-                    _debug: 'false',
+                    _inspect: 'false',
                     ...request.query,
                   },
                 },
@@ -142,10 +142,10 @@ export function createApi() {
                   ...context,
                   plugins,
                   // Only return values for parameters that have runtime types,
-                  // but always include query as _debug is always set even if
+                  // but always include query as _inspect is always set even if
                   // it's not defined in the route.
                   params: mergeLodash(
-                    { query: { _debug: false } },
+                    { query: { _inspect: false } },
                     pickBy(result.right, isNotEmpty)
                   ),
                   config,

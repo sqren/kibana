@@ -27,7 +27,7 @@ function fetchOptionsWithDebug(
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     query: {
       ...fetchOptions.query,
-      ...(debugEnabled ? { _debug: true } : {}),
+      ...(debugEnabled ? { _inspect: true } : {}),
     },
   };
 }
