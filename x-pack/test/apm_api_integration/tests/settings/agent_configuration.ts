@@ -22,37 +22,43 @@ export default function agentConfigurationTests({ getService }: FtrProviderConte
   const archiveName = 'apm_8.0.0';
 
   function getServices() {
-    return supertestRead('GET /api/apm/settings/agent-configuration/services');
+    return supertestRead({
+      endpoint: 'GET /api/apm/settings/agent-configuration/services',
+    });
   }
 
   async function getEnvironments(serviceName: string) {
-    return supertestRead('GET /api/apm/settings/agent-configuration/environments', {
-      query: { serviceName },
+    return supertestRead({
+      endpoint: 'GET /api/apm/settings/agent-configuration/environments',
+      params: { query: { serviceName } },
     });
   }
 
   function getAgentName(serviceName: string) {
-    return supertestRead('GET /api/apm/settings/agent-configuration/agent_name', {
-      query: { serviceName },
+    return supertestRead({
+      endpoint: 'GET /api/apm/settings/agent-configuration/agent_name',
+      params: { query: { serviceName } },
     });
   }
 
   function searchConfigurations(configuration: AgentConfigSearchParams) {
-    return supertestRead('POST /api/apm/settings/agent-configuration/search', {
-      body: configuration,
+    return supertestRead({
+      endpoint: 'POST /api/apm/settings/agent-configuration/search',
+      params: { body: configuration },
     });
   }
 
   function getAllConfigurations() {
-    return supertestRead('GET /api/apm/settings/agent-configuration');
+    return supertestRead({ endpoint: 'GET /api/apm/settings/agent-configuration' });
   }
 
-  function createConfiguration(config: AgentConfigurationIntake, { user = 'write' } = {}) {
-    log.debug('creating configuration', config.service);
+  function createConfiguration(configuration: AgentConfigurationIntake, { user = 'write' } = {}) {
+    log.debug('creating configuration', configuration.service);
     const supertestClient = user === 'read' ? supertestRead : supertestWrite;
 
-    return supertestClient('PUT /api/apm/settings/agent-configuration', {
-      body: config,
+    return supertestClient({
+      endpoint: 'PUT /api/apm/settings/agent-configuration',
+      params: { body: configuration },
     });
   }
 
@@ -60,9 +66,9 @@ export default function agentConfigurationTests({ getService }: FtrProviderConte
     log.debug('updating configuration', config.service);
     const supertestClient = user === 'read' ? supertestRead : supertestWrite;
 
-    return supertestClient('PUT /api/apm/settings/agent-configuration', {
-      query: { overwrite: true },
-      body: config,
+    return supertestClient({
+      endpoint: 'PUT /api/apm/settings/agent-configuration',
+      params: { query: { overwrite: true }, body: config },
     });
   }
 
@@ -70,8 +76,9 @@ export default function agentConfigurationTests({ getService }: FtrProviderConte
     log.debug('deleting configuration', service);
     const supertestClient = user === 'read' ? supertestRead : supertestWrite;
 
-    return supertestClient('DELETE /api/apm/settings/agent-configuration', {
-      body: { service },
+    return supertestClient({
+      endpoint: 'DELETE /api/apm/settings/agent-configuration',
+      params: { body: { service } },
     });
   }
 

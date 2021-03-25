@@ -26,9 +26,9 @@ export default function ApiTest({ getService }: FtrProviderContext) {
     () => {
       describe('when data is not loaded', () => {
         it('handles the empty state', async () => {
-          const response = await apmApiSupertest(
-            `GET /api/apm/services/{serviceName}/service_overview_instances`,
-            {
+          const response = await apmApiSupertest({
+            endpoint: `GET /api/apm/services/{serviceName}/service_overview_instances`,
+            params: {
               path: { serviceName: 'opbeans-java' },
               query: {
                 latencyAggregationType: 'avg',
@@ -37,8 +37,8 @@ export default function ApiTest({ getService }: FtrProviderContext) {
                 numBuckets: 20,
                 transactionType: 'request',
               },
-            }
-          );
+            },
+          });
 
           expect(response.status).to.be(200);
           expect(response.body.serviceInstances).to.eql([]);
@@ -57,9 +57,9 @@ export default function ApiTest({ getService }: FtrProviderContext) {
         };
 
         beforeEach(async () => {
-          response = await apmApiSupertest(
-            `GET /api/apm/services/{serviceName}/service_overview_instances`,
-            {
+          response = await apmApiSupertest({
+            endpoint: `GET /api/apm/services/{serviceName}/service_overview_instances`,
+            params: {
               path: { serviceName: 'opbeans-java' },
               query: {
                 latencyAggregationType: 'avg',
@@ -68,12 +68,12 @@ export default function ApiTest({ getService }: FtrProviderContext) {
                 numBuckets: 20,
                 transactionType: 'request',
               },
-            }
-          );
+            },
+          });
         });
 
         it('returns a service node item', () => {
-          expect(response.body.serviceInstances).to.be.greaterThan(0);
+          expect(response.body.serviceInstances.length).to.be.greaterThan(0);
         });
 
         it('returns statistics for each service node', () => {
@@ -143,9 +143,9 @@ export default function ApiTest({ getService }: FtrProviderContext) {
         };
 
         beforeEach(async () => {
-          response = await apmApiSupertest(
-            `GET /api/apm/services/{serviceName}/service_overview_instances`,
-            {
+          response = await apmApiSupertest({
+            endpoint: `GET /api/apm/services/{serviceName}/service_overview_instances`,
+            params: {
               path: { serviceName: 'opbeans-ruby' },
               query: {
                 latencyAggregationType: 'avg',
@@ -154,8 +154,8 @@ export default function ApiTest({ getService }: FtrProviderContext) {
                 numBuckets: 20,
                 transactionType: 'request',
               },
-            }
-          );
+            },
+          });
         });
 
         it('returns statistics for each service node', () => {

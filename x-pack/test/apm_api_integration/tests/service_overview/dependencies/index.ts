@@ -29,13 +29,16 @@ export default function ApiTest({ getService }: FtrProviderContext) {
     { config: 'basic', archives: [] },
     () => {
       it('handles the empty state', async () => {
-        const response = await apmApiSupertest(`GET /api/apm/services/{serviceName}/dependencies`, {
-          path: { serviceName: 'opbeans-java' },
-          query: {
-            start,
-            end,
-            numBuckets: 20,
-            environment: ENVIRONMENT_ALL.value,
+        const response = await apmApiSupertest({
+          endpoint: `GET /api/apm/services/{serviceName}/dependencies`,
+          params: {
+            path: { serviceName: 'opbeans-java' },
+            query: {
+              start,
+              end,
+              numBuckets: 20,
+              environment: ENVIRONMENT_ALL.value,
+            },
           },
         });
 
@@ -201,13 +204,16 @@ export default function ApiTest({ getService }: FtrProviderContext) {
           refresh: 'wait_for',
         });
 
-        response = await apmApiSupertest(`GET /api/apm/services/{serviceName}/dependencies`, {
-          path: { serviceName: 'opbeans-java' },
-          query: {
-            start,
-            end,
-            numBuckets: 20,
-            environment: ENVIRONMENT_ALL.value,
+        response = await apmApiSupertest({
+          endpoint: `GET /api/apm/services/{serviceName}/dependencies`,
+          params: {
+            path: { serviceName: 'opbeans-java' },
+            query: {
+              start,
+              end,
+              numBuckets: 20,
+              environment: ENVIRONMENT_ALL.value,
+            },
           },
         });
       });
@@ -298,13 +304,16 @@ export default function ApiTest({ getService }: FtrProviderContext) {
       };
 
       before(async () => {
-        response = await apmApiSupertest(`GET /api/apm/services/{serviceName}/dependencies`, {
-          path: { serviceName: 'opbeans-python' },
-          query: {
-            start,
-            end,
-            numBuckets: 20,
-            environment: ENVIRONMENT_ALL.value,
+        response = await apmApiSupertest({
+          endpoint: `GET /api/apm/services/{serviceName}/dependencies`,
+          params: {
+            path: { serviceName: 'opbeans-python' },
+            query: {
+              start,
+              end,
+              numBuckets: 20,
+              environment: ENVIRONMENT_ALL.value,
+            },
           },
         });
       });

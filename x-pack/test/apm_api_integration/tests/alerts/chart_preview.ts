@@ -17,48 +17,62 @@ export default function ApiTest({ getService }: FtrProviderContext) {
   const { end } = archives[archiveName];
   const start = new Date(Date.parse(end) - 600000).toISOString();
 
-  const options = {
-    query: { start, end, serviceName: 'opbeans-java', transactionType: 'request' },
-  };
+  const getOptions = () => ({
+    params: {
+      query: {
+        start,
+        end,
+        serviceName: 'opbeans-java',
+        transactionType: 'request' as string | undefined,
+      },
+    },
+  });
 
   registry.when(`without data loaded`, { config: 'basic', archives: [] }, () => {
-    it('transaction_error_rate', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_error_rate',
-        options
-      );
+    it('transaction_error_rate (without data)', async () => {
+      const options = getOptions();
+      const response = await apmApiSupertest({
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_error_rate',
+        ...options,
+      });
 
       expect(response.status).to.be(200);
-      expect(response.body.errorRateChartPreview).to.eql(undefined);
+      expect(response.body.errorRateChartPreview).to.eql([]);
     });
 
     it('transaction_error_count (without data)', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_error_count',
-        { ...options, query: { ...options.query, transactionType: undefined } }
-      );
+      const options = getOptions();
+      options.params.query.transactionType = undefined;
+
+      const response = await apmApiSupertest({
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_error_count',
+        ...options,
+      });
 
       expect(response.status).to.be(200);
-      expect(response.body.errorCountChartPreview).to.eql(undefined);
+      expect(response.body.errorCountChartPreview).to.eql([]);
     });
 
     it('transaction_duration (without data)', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_duration',
-        options
-      );
+      const options = getOptions();
+
+      const response = await apmApiSupertest({
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_duration',
+        ...options,
+      });
 
       expect(response.status).to.be(200);
-      expect(response.body.latencyChartPreview).to.eql(undefined);
+      expect(response.body.latencyChartPreview).to.eql([]);
     });
   });
 
   registry.when(`with data loaded`, { config: 'basic', archives: [archiveName] }, () => {
-    it('transaction_error_rate', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_error_rate',
-        options
-      );
+    it('transaction_error_rate (with data)', async () => {
+      const options = getOptions();
+      const response = await apmApiSupertest({
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_error_rate',
+        ...options,
+      });
 
       expect(response.status).to.be(200);
       expect(
@@ -69,10 +83,13 @@ export default function ApiTest({ getService }: FtrProviderContext) {
     });
 
     it('transaction_error_count (with data)', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_error_count',
-        { ...options, query: { ...options.query, transactionType: undefined } }
-      );
+      const options = getOptions();
+      options.params.query.transactionType = undefined;
+
+      const response = await apmApiSupertest({
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_error_count',
+        ...options,
+      });
 
       expect(response.status).to.be(200);
       expect(
@@ -83,10 +100,11 @@ export default function ApiTest({ getService }: FtrProviderContext) {
     });
 
     it('transaction_duration (with data)', async () => {
-      const response = await apmApiSupertest(
-        'GET /api/apm/alerts/chart_preview/transaction_duration',
-        options
-      );
+      const options = getOptions();
+      const response = await apmApiSupertest({
+        ...options,
+        endpoint: 'GET /api/apm/alerts/chart_preview/transaction_duration',
+      });
 
       expect(response.status).to.be(200);
       expect(

@@ -7,21 +7,25 @@
 
 import { format } from 'url';
 import supertest from 'supertest';
+import { MaybeParams } from '../../../plugins/apm/server/routes/typings';
 import { parseEndpoint } from '../../../plugins/apm/common/apm_api/parse_endpoint';
 import { APMAPI } from '../../../plugins/apm/server/routes/create_apm_api';
-import type {
-  APIReturnType,
-  APMClientOptions,
-} from '../../../plugins/apm/public/services/rest/createCallApmApi';
+import type { APIReturnType } from '../../../plugins/apm/public/services/rest/createCallApmApi';
 
 export function createApmApiSupertest(st: supertest.SuperTest<supertest.Test>) {
   return async <TPath extends keyof APMAPI['_S']>(
-    endpoint: TPath,
-    params: APMClientOptions['params'] = {}
+    options: {
+      endpoint: TPath;
+    } & MaybeParams<APMAPI['_S'], TPath>
   ): Promise<{
     status: number;
     body: APIReturnType<TPath>;
   }> => {
+    const { endpoint } = options;
+
+    // @ts-expect-error
+    const params = 'params' in options ? options.params : {};
+
     const { method, pathname } = parseEndpoint(endpoint, params?.path);
     const url = format({ pathname, query: params?.query });
 
