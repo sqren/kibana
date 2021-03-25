@@ -31,10 +31,15 @@ export function createApmApiSupertest(st: supertest.SuperTest<supertest.Test>) {
 
     const res = params.body
       ? await st[method](url).send(params.body).set('kbn-xsrf', 'foo')
-      : await st[method](url);
+      : await st[method](url).set('kbn-xsrf', 'foo');
 
-    if (res.status > 399) {
-      const e = new Error(`Unhandled ApmApiSupertest error ${res.status}`);
+    // supertest doesn't throw on http errors
+    if (res.status !== 200) {
+      const e = new Error(
+        `Unhandled ApmApiSupertest error. Status: "${
+          res.status
+        }". Endpoint: "${endpoint}". ${JSON.stringify(res.body)}`
+      );
       // @ts-expect-error
       e.res = res;
       throw e;

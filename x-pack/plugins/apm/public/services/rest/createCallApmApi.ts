@@ -39,7 +39,7 @@ export let callApmApi: APMClient = () => {
 export function createCallApmApi(core: CoreStart | CoreSetup) {
   callApmApi = ((options: APMClientOptions) => {
     const { endpoint, params = {}, ...opts } = options;
-    const pathParams = (params.path || {}) as Record<string, any>;
+    const pathParams = params.path || {};
     const { method, pathname } = parseEndpoint(endpoint, pathParams);
 
     return callApi(core, {
