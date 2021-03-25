@@ -13,60 +13,177 @@ export default function apmApiIntegrationTests(providerContext: FtrProviderConte
 
   describe('APM API tests', function () {
     this.tags('ciGroup1');
-    loadTestFile(require.resolve('./alerts/chart_preview'));
 
-    loadTestFile(require.resolve('./correlations/slow_transactions'));
+    describe('alerts/chart_preview', function () {
+      loadTestFile(require.resolve('./alerts/chart_preview'));
+    });
 
-    loadTestFile(require.resolve('./csm/csm_services'));
-    loadTestFile(require.resolve('./csm/has_rum_data'));
-    loadTestFile(require.resolve('./csm/js_errors'));
-    loadTestFile(require.resolve('./csm/long_task_metrics'));
-    loadTestFile(require.resolve('./csm/page_load_dist'));
-    loadTestFile(require.resolve('./csm/page_views'));
-    loadTestFile(require.resolve('./csm/url_search'));
-    loadTestFile(require.resolve('./csm/web_core_vitals'));
+    describe('correlations/slow_transactions', function () {
+      loadTestFile(require.resolve('./correlations/slow_transactions'));
+    });
 
-    loadTestFile(require.resolve('./metrics_charts/metrics_charts'));
+    describe('metrics_charts/metrics_charts', function () {
+      loadTestFile(require.resolve('./metrics_charts/metrics_charts'));
+    });
 
-    loadTestFile(require.resolve('./observability_overview/has_data'));
-    loadTestFile(require.resolve('./observability_overview/observability_overview'));
+    describe('observability_overview/has_data', function () {
+      loadTestFile(require.resolve('./observability_overview/has_data'));
+    });
 
-    loadTestFile(require.resolve('./service_maps/service_maps'));
+    describe('observability_overview/observability_overview', function () {
+      loadTestFile(require.resolve('./observability_overview/observability_overview'));
+    });
 
-    loadTestFile(require.resolve('./service_overview/dependencies'));
-    loadTestFile(require.resolve('./service_overview/instances'));
+    describe('service_maps/service_maps', function () {
+      loadTestFile(require.resolve('./service_maps/service_maps'));
+    });
 
-    loadTestFile(require.resolve('./services/agent_name'));
-    loadTestFile(require.resolve('./services/annotations'));
-    loadTestFile(require.resolve('./services/service_details'));
-    loadTestFile(require.resolve('./services/service_icons'));
-    loadTestFile(require.resolve('./services/throughput'));
-    loadTestFile(require.resolve('./services/top_services'));
-    loadTestFile(require.resolve('./services/transaction_types'));
-    loadTestFile(require.resolve('./services/error_groups_primary_statistics'));
-    loadTestFile(require.resolve('./services/error_groups_comparison_statistics'));
+    // Service overview
+    describe('service_overview/dependencies', function () {
+      loadTestFile(require.resolve('./service_overview/dependencies'));
+    });
 
-    loadTestFile(require.resolve('./settings/anomaly_detection/basic'));
-    loadTestFile(require.resolve('./settings/anomaly_detection/no_access_user'));
-    loadTestFile(require.resolve('./settings/anomaly_detection/read_user'));
-    loadTestFile(require.resolve('./settings/anomaly_detection/write_user'));
+    describe('service_overview/instances', function () {
+      loadTestFile(require.resolve('./service_overview/instances'));
+    });
 
-    loadTestFile(require.resolve('./settings/agent_configuration'));
+    // Services
+    describe('services/agent_name', function () {
+      loadTestFile(require.resolve('./services/agent_name'));
+    });
 
-    loadTestFile(require.resolve('./settings/custom_link'));
+    describe('services/annotations', function () {
+      loadTestFile(require.resolve('./services/annotations'));
+    });
 
-    loadTestFile(require.resolve('./traces/top_traces'));
+    describe('services/service_details', function () {
+      loadTestFile(require.resolve('./services/service_details'));
+    });
 
-    loadTestFile(require.resolve('./transactions/breakdown'));
-    loadTestFile(require.resolve('./transactions/distribution'));
-    loadTestFile(require.resolve('./transactions/error_rate'));
-    loadTestFile(require.resolve('./transactions/latency'));
-    loadTestFile(require.resolve('./transactions/throughput'));
-    loadTestFile(require.resolve('./transactions/top_transaction_groups'));
-    loadTestFile(require.resolve('./transactions/transactions_groups_primary_statistics'));
-    loadTestFile(require.resolve('./transactions/transactions_groups_comparison_statistics'));
+    describe('services/service_icons', function () {
+      loadTestFile(require.resolve('./services/service_icons'));
+    });
 
-    loadTestFile(require.resolve('./feature_controls'));
+    describe('services/throughput', function () {
+      loadTestFile(require.resolve('./services/throughput'));
+    });
+
+    describe('services/top_services', function () {
+      loadTestFile(require.resolve('./services/top_services'));
+    });
+
+    describe('services/transaction_types', function () {
+      loadTestFile(require.resolve('./services/transaction_types'));
+    });
+
+    describe('services/error_groups_primary_statistics', function () {
+      loadTestFile(require.resolve('./services/error_groups_primary_statistics'));
+    });
+
+    describe('services/error_groups_comparison_statistics', function () {
+      loadTestFile(require.resolve('./services/error_groups_comparison_statistics'));
+    });
+
+    // Settinges
+    describe('settings/anomaly_detection/basic', function () {
+      loadTestFile(require.resolve('./settings/anomaly_detection/basic'));
+    });
+
+    describe('settings/anomaly_detection/no_access_user', function () {
+      loadTestFile(require.resolve('./settings/anomaly_detection/no_access_user'));
+    });
+
+    describe('settings/anomaly_detection/read_user', function () {
+      loadTestFile(require.resolve('./settings/anomaly_detection/read_user'));
+    });
+
+    describe('settings/anomaly_detection/write_user', function () {
+      loadTestFile(require.resolve('./settings/anomaly_detection/write_user'));
+    });
+
+    describe('settings/agent_configuration', function () {
+      loadTestFile(require.resolve('./settings/agent_configuration'));
+    });
+
+    describe('settings/custom_link', function () {
+      loadTestFile(require.resolve('./settings/custom_link'));
+    });
+
+    // traces
+    describe('traces/top_traces', function () {
+      loadTestFile(require.resolve('./traces/top_traces'));
+    });
+
+    // transactions
+    describe('transactions/breakdown', function () {
+      loadTestFile(require.resolve('./transactions/breakdown'));
+    });
+
+    describe('transactions/distribution', function () {
+      loadTestFile(require.resolve('./transactions/distribution'));
+    });
+
+    describe('transactions/error_rate', function () {
+      loadTestFile(require.resolve('./transactions/error_rate'));
+    });
+
+    describe('transactions/latency', function () {
+      loadTestFile(require.resolve('./transactions/latency'));
+    });
+
+    describe('transactions/throughput', function () {
+      loadTestFile(require.resolve('./transactions/throughput'));
+    });
+
+    describe('transactions/top_transaction_groups', function () {
+      loadTestFile(require.resolve('./transactions/top_transaction_groups'));
+    });
+
+    describe('transactions/transactions_groups_primary_statistics', function () {
+      loadTestFile(require.resolve('./transactions/transactions_groups_primary_statistics'));
+    });
+
+    describe('transactions/transactions_groups_comparison_statistics', function () {
+      loadTestFile(require.resolve('./transactions/transactions_groups_comparison_statistics'));
+    });
+
+    // feature control
+    describe('feature_controls', function () {
+      loadTestFile(require.resolve('./feature_controls'));
+    });
+
+    // CSM
+    describe('csm/csm_services', function () {
+      loadTestFile(require.resolve('./csm/csm_services'));
+    });
+
+    describe('csm/has_rum_data', function () {
+      loadTestFile(require.resolve('./csm/has_rum_data'));
+    });
+
+    describe('csm/js_errors', function () {
+      loadTestFile(require.resolve('./csm/js_errors'));
+    });
+
+    describe('csm/long_task_metrics', function () {
+      loadTestFile(require.resolve('./csm/long_task_metrics'));
+    });
+
+    describe('csm/page_load_dist', function () {
+      loadTestFile(require.resolve('./csm/page_load_dist'));
+    });
+
+    describe('csm/page_views', function () {
+      loadTestFile(require.resolve('./csm/page_views'));
+    });
+
+    describe('csm/url_search', function () {
+      loadTestFile(require.resolve('./csm/url_search'));
+    });
+
+    describe('csm/web_core_vitals', function () {
+      loadTestFile(require.resolve('./csm/web_core_vitals'));
+    });
 
     registry.run(providerContext);
   });

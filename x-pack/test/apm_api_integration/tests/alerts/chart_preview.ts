@@ -6,66 +6,94 @@
  */
 
 import expect from '@kbn/expect';
-import { format } from 'url';
+import { createApmApiSupertest } from '../../common/apm_api_supertest';
 import archives from '../../common/fixtures/es_archiver/archives_metadata';
 import { FtrProviderContext } from '../../common/ftr_provider_context';
 import { registry } from '../../common/registry';
 
 export default function ApiTest({ getService }: FtrProviderContext) {
-  const supertest = getService('supertest');
+  const apmApiSupertest = createApmApiSupertest(getService('supertest'));
   const archiveName = 'apm_8.0.0';
   const { end } = archives[archiveName];
   const start = new Date(Date.parse(end) - 600000).toISOString();
 
-  const apis = [
-    {
-      pathname: '/api/apm/alerts/chart_preview/transaction_error_rate',
-      params: { transactionType: 'request' },
-    },
-    { pathname: '/api/apm/alerts/chart_preview/transaction_error_count', params: {} },
-    {
-      pathname: '/api/apm/alerts/chart_preview/transaction_duration',
-      params: { transactionType: 'request' },
-    },
-  ];
+  const options = {
+    query: { start, end, serviceName: 'opbeans-java', transactionType: 'request' },
+  };
 
-  apis.forEach((api) => {
-    const url = format({
-      pathname: api.pathname,
-      query: {
-        start,
-        end,
-        serviceName: 'opbeans-java',
-        ...api.params,
-      },
+  registry.when(`without data loaded`, { config: 'basic', archives: [] }, () => {
+    it('transaction_error_rate', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_error_rate',
+        options
+      );
+
+      expect(response.status).to.be(200);
+      expect(response.body.errorRateChartPreview).to.eql(undefined);
     });
 
-    registry.when(
-      `GET ${api.pathname} without data loaded`,
-      { config: 'basic', archives: [] },
-      () => {
-        it('handles the empty state', async () => {
-          const response = await supertest.get(url);
+    it('transaction_error_count (without data)', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_error_count',
+        { ...options, query: { ...options.query, transactionType: undefined } }
+      );
 
-          expect(response.status).to.be(200);
-          expect(response.body).to.eql([]);
-        });
-      }
-    );
+      expect(response.status).to.be(200);
+      expect(response.body.errorCountChartPreview).to.eql(undefined);
+    });
 
-    registry.when(
-      `GET ${api.pathname} with data loaded`,
-      { config: 'basic', archives: [archiveName] },
-      () => {
-        it('returns the correct data', async () => {
-          const response = await supertest.get(url);
+    it('transaction_duration (without data)', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_duration',
+        options
+      );
 
-          expect(response.status).to.be(200);
-          expect(
-            response.body.some((item: { x: number; y: number | null }) => item.x && item.y)
-          ).to.equal(true);
-        });
-      }
-    );
+      expect(response.status).to.be(200);
+      expect(response.body.latencyChartPreview).to.eql(undefined);
+    });
+  });
+
+  registry.when(`with data loaded`, { config: 'basic', archives: [archiveName] }, () => {
+    it('transaction_error_rate', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_error_rate',
+        options
+      );
+
+      expect(response.status).to.be(200);
+      expect(
+        response.body.errorRateChartPreview.some(
+          (item: { x: number; y: number | null }) => item.x && item.y
+        )
+      ).to.equal(true);
+    });
+
+    it('transaction_error_count (with data)', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_error_count',
+        { ...options, query: { ...options.query, transactionType: undefined } }
+      );
+
+      expect(response.status).to.be(200);
+      expect(
+        response.body.errorCountChartPreview.some(
+          (item: { x: number; y: number | null }) => item.x && item.y
+        )
+      ).to.equal(true);
+    });
+
+    it('transaction_duration (with data)', async () => {
+      const response = await apmApiSupertest(
+        'GET /api/apm/alerts/chart_preview/transaction_duration',
+        options
+      );
+
+      expect(response.status).to.be(200);
+      expect(
+        response.body.latencyChartPreview.some(
+          (item: { x: number; y: number | null }) => item.x && item.y
+        )
+      ).to.equal(true);
+    });
   });
 }
