@@ -38,16 +38,15 @@ export let callApmApi: APMClient = () => {
 
 export function createCallApmApi(core: CoreStart | CoreSetup) {
   callApmApi = ((options: APMClientOptions) => {
-    const { endpoint, params = {}, ...opts } = options;
-    const pathParams = params.path || {};
-    const { method, pathname } = parseEndpoint(endpoint, pathParams);
+    const { endpoint, params, ...opts } = options;
+    const { method, pathname } = parseEndpoint(endpoint, params?.path);
 
     return callApi(core, {
       ...opts,
       method,
       pathname,
-      body: params.body,
-      query: params.query,
+      body: params?.body,
+      query: params?.query,
     });
   }) as APMClient;
 }
