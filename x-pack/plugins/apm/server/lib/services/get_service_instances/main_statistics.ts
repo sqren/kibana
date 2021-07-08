@@ -30,6 +30,7 @@ export async function getServiceInstancesMainStatistics(
 ): Promise<
   Array<{
     serviceNodeName: string;
+    host?: string;
     errorRate?: number;
     latency?: number;
     throughput?: number;

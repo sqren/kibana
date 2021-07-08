@@ -23,6 +23,9 @@ import { truncate, unit } from '../../../utils/style';
 import { ServiceNodeMetricOverviewLink } from '../../shared/Links/apm/ServiceNodeMetricOverviewLink';
 import { ITableColumn, ManagedTable } from '../../shared/managed_table';
 
+const MISSING_NAME_TOOLTIP =
+  'We could not identify which JVMs these metrics belong to. This is likely caused by running a version of APM Server that is older than 7.5. Upgrading to APM Server 7.5 or higher should resolve this issue.';
+
 const INITIAL_PAGE_SIZE = 25;
 const INITIAL_SORT_FIELD = 'cpu';
 const INITIAL_SORT_DIRECTION = 'desc';
@@ -80,28 +83,22 @@ function ServiceNodeOverview({ serviceName }: ServiceNodeOverviewProps) {
       ),
       field: 'name',
       sortable: true,
-      render: (name: string) => {
-        const { displayedName, tooltip } =
-          name === SERVICE_NODE_NAME_MISSING
-            ? {
-                displayedName: getServiceNodeName(name),
-                tooltip: i18n.translate(
-                  'xpack.apm.jvmsTable.explainServiceNodeNameMissing',
-                  {
-                    defaultMessage:
-                      'We could not identify which JVMs these metrics belong to. This is likely caused by running a version of APM Server that is older than 7.5. Upgrading to APM Server 7.5 or higher should resolve this issue.',
-                  }
-                ),
-              }
-            : { displayedName: name, tooltip: name };
+      render: (_, { name, host }) => {
+        const serviceNodeNameLabel = getServiceNodeName({ name, host });
 
         return (
-          <EuiToolTip content={tooltip}>
+          <EuiToolTip
+            content={
+              name === SERVICE_NODE_NAME_MISSING
+                ? MISSING_NAME_TOOLTIP
+                : serviceNodeNameLabel
+            }
+          >
             <ServiceNodeMetricOverviewLink
               serviceName={serviceName}
               serviceNodeName={name}
             >
-              <ServiceNodeName>{displayedName}</ServiceNodeName>
+              <ServiceNodeName>{serviceNodeNameLabel}</ServiceNodeName>
             </ServiceNodeMetricOverviewLink>
           </EuiToolTip>
         );

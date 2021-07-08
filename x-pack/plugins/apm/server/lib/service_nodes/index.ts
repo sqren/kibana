@@ -10,6 +10,7 @@ import {
   METRIC_JAVA_NON_HEAP_MEMORY_USED,
   METRIC_JAVA_THREAD_COUNT,
   METRIC_PROCESS_CPU_PERCENT,
+  HOST_NAME,
 } from '../../../common/elasticsearch_fieldnames';
 import { SERVICE_NODE_NAME_MISSING } from '../../../common/service_nodes';
 import { getServiceNodesProjection } from '../../projections/service_nodes';
@@ -39,6 +40,12 @@ const getServiceNodes = async ({
             missing: SERVICE_NODE_NAME_MISSING,
           },
           aggs: {
+            host: {
+              terms: {
+                field: HOST_NAME,
+                size: 1,
+              },
+            },
             cpu: {
               avg: {
                 field: METRIC_PROCESS_CPU_PERCENT,
@@ -74,6 +81,7 @@ const getServiceNodes = async ({
   return response.aggregations.nodes.buckets
     .map((bucket) => ({
       name: bucket.key as string,
+      host: bucket.host.buckets[0]?.key as string | undefined,
       cpu: bucket.cpu.value,
       heapMemory: bucket.heapMemory.value,
       nonHeapMemory: bucket.nonHeapMemory.value,

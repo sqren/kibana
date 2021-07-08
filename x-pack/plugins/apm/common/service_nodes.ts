@@ -16,8 +16,20 @@ const UNIDENTIFIED_SERVICE_NODES_LABEL = i18n.translate(
   }
 );
 
-export function getServiceNodeName(serviceNodeName?: string) {
-  return serviceNodeName === SERVICE_NODE_NAME_MISSING || !serviceNodeName
-    ? UNIDENTIFIED_SERVICE_NODES_LABEL
-    : serviceNodeName;
+export function getServiceNodeName({
+  name,
+  host,
+}: {
+  name?: string;
+  host?: string;
+}) {
+  if (!name || name === SERVICE_NODE_NAME_MISSING) {
+    return UNIDENTIFIED_SERVICE_NODES_LABEL;
+  }
+
+  if (host) {
+    return `${host} (${name})`;
+  }
+
+  return name;
 }

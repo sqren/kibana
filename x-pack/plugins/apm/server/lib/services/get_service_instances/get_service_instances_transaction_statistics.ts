@@ -6,6 +6,7 @@
  */
 import {
   EVENT_OUTCOME,
+  HOST_NAME,
   SERVICE_NAME,
   SERVICE_NODE_NAME,
   TRANSACTION_TYPE,
@@ -92,6 +93,12 @@ export async function getServiceInstancesTransactionStatistics<
   );
 
   const subAggs = {
+    host: {
+      terms: {
+        field: HOST_NAME,
+        size: 1,
+      },
+    },
     ...getLatencyAggregation(latencyAggregationType, field),
     failures: {
       filter: {
@@ -166,6 +173,7 @@ export async function getServiceInstancesTransactionStatistics<
         // Timeseries is returned when isComparisonSearch is true
         if ('timeseries' in serviceNodeBucket) {
           const { timeseries } = serviceNodeBucket;
+
           return {
             serviceNodeName,
             errorRate: timeseries.buckets.map((dateBucket) => ({
@@ -184,18 +192,20 @@ export async function getServiceInstancesTransactionStatistics<
               }),
             })),
           };
-        } else {
-          const { failures, latency } = serviceNodeBucket;
-          return {
-            serviceNodeName,
-            errorRate: failures.doc_count / count,
-            latency: getLatencyValue({
-              aggregation: latency,
-              latencyAggregationType,
-            }),
-            throughput: calculateThroughput({ start, end, value: count }),
-          };
         }
+
+        const { failures, latency, host } = serviceNodeBucket;
+
+        return {
+          serviceNodeName,
+          errorRate: failures.doc_count / count,
+          host: host.buckets[0]?.key as string | undefined,
+          latency: getLatencyValue({
+            aggregation: latency,
+            latencyAggregationType,
+          }),
+          throughput: calculateThroughput({ start, end, value: count }),
+        };
       }
     ) as Array<ServiceInstanceTransactionStatistics<T>>) || []
   );

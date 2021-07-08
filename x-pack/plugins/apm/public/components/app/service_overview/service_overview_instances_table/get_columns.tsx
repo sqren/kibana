@@ -31,9 +31,10 @@ import { MetricOverviewLink } from '../../../shared/Links/apm/MetricOverviewLink
 import { ServiceNodeMetricOverviewLink } from '../../../shared/Links/apm/ServiceNodeMetricOverviewLink';
 import { TruncateWithTooltip } from '../../../shared/truncate_with_tooltip';
 import { getLatencyColumnLabel } from '../get_latency_column_label';
-import { MainStatsServiceInstanceItem } from '../service_overview_instances_chart_and_table';
 import { InstanceActionsMenu } from './instance_actions_menu';
 
+type ServiceInstanceMainStatistics = APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances/main_statistics'>;
+type MainStatsServiceInstanceItem = ServiceInstanceMainStatistics['currentPeriod'][0];
 type ServiceInstanceDetailedStatistics = APIReturnType<'GET /api/apm/services/{serviceName}/service_overview_instances/detailed_statistics'>;
 
 export function getColumns({
@@ -64,16 +65,15 @@ export function getColumns({
         'xpack.apm.serviceOverview.instancesTableColumnNodeName',
         { defaultMessage: 'Node name' }
       ),
-      render: (_, item) => {
-        const { serviceNodeName } = item;
+      render: (_, { serviceNodeName, host }) => {
         const isMissingServiceNodeName =
           serviceNodeName === SERVICE_NODE_NAME_MISSING;
-        const text = getServiceNodeName(serviceNodeName);
+        const text = getServiceNodeName({ name: serviceNodeName, host });
 
         const link = isJavaAgentName(agentName) ? (
           <ServiceNodeMetricOverviewLink
             serviceName={serviceName}
-            serviceNodeName={item.serviceNodeName}
+            serviceNodeName={serviceNodeName}
           >
             {text}
           </ServiceNodeMetricOverviewLink>
@@ -84,7 +84,7 @@ export function getColumns({
               ...query,
               kuery: isMissingServiceNodeName
                 ? `NOT (service.node.name:*)`
-                : `service.node.name:"${item.serviceNodeName}"`,
+                : `service.node.name:"${serviceNodeName}"`,
             })}
           >
             {text}

@@ -482,7 +482,8 @@ export const apmRouteConfig: APMRouteDefinition[] = [
     exact: true,
     path: '/services/:serviceName/nodes/:serviceNodeName/metrics',
     component: ServiceNodeMetricsRouteView,
-    breadcrumb: ({ match }) => getServiceNodeName(match.params.serviceNodeName),
+    breadcrumb: ({ match }) =>
+      getServiceNodeName({ name: match.params.serviceNodeName }),
   },
   {
     exact: true,
